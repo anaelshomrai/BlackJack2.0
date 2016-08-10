@@ -4,17 +4,24 @@ import DataUtil.ConnectionData;
 import Resources.GameUtil;
 import Resources.LocalizationUtil;
 import Users.User;
+//import DataBase.DB;
+//import DataBase.DBUtils;
 import Resources.RoundedBorder;
+import Users.Admin;
 import blackjackclient.ConnectionUtil;
 import java.awt.Color;
-import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -28,7 +35,6 @@ public class ListOfUsers extends javax.swing.JFrame {
     private static int id;
     private static String userName = null;
     AdminHome previous = null;
-    boolean serverUp = true;
 
     /**
      * Creates new form ListOfUsers
@@ -87,6 +93,9 @@ public class ListOfUsers extends javax.swing.JFrame {
     }
 
     private void initTable() {
+        jScrollPane1.setOpaque(false);
+        jScrollPane1.getViewport().setOpaque(false);
+        usersTable.setShowGrid(false);
 
         GameUtil.setIcon(this);
         dtm = new DefaultTableModel() {
@@ -106,10 +115,7 @@ public class ListOfUsers extends javax.swing.JFrame {
 
         try {
             ConnectionUtil myConnection = new ConnectionUtil();
-            serverUp = myConnection.openConnection();
-            if (!serverUp) {
-                this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-            }
+            myConnection.openConnection();
 
             myConnection.getAllUsers();
 
@@ -137,22 +143,20 @@ public class ListOfUsers extends javax.swing.JFrame {
 
             }
 
-            usersTable.setModel(dtm);
-
-            usersTable.setBackground(
-                    new java.awt.Color(204, 204, 255));
-            usersTable.getTableHeader()
-                    .setReorderingAllowed(false);
-            usersTable.removeColumn(usersTable.getColumnModel().getColumn(0));
         } catch (IOException ex) {
             Logger.getLogger(WelcomeScreen.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(WelcomeScreen.class.getName()).log(Level.SEVERE, null, ex);
         }
-        jScrollPane1.setOpaque(false);
-        jScrollPane1.getViewport().setOpaque(false);
-        usersTable.setShowGrid(false);
-        usersTable.setBackground(new Color(0, 255, 0, 0));
+
+        usersTable.setModel(dtm);
+
+        usersTable.setBackground(
+                new java.awt.Color(204, 204, 255));
+        usersTable.getTableHeader()
+                .setReorderingAllowed(false);
+        usersTable.removeColumn(usersTable.getColumnModel().getColumn(0));
+
     }
 
     /**
@@ -173,7 +177,8 @@ public class ListOfUsers extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("BlackJack ANI - ADMIN");
-        setPreferredSize(new java.awt.Dimension(598, 479));
+        setName("listOfUsersFrame"); // NOI18N
+        setPreferredSize(new java.awt.Dimension(620, 520));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -201,9 +206,6 @@ public class ListOfUsers extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        usersTable.setMaximumSize(new java.awt.Dimension(300, 64));
-        usersTable.setMinimumSize(new java.awt.Dimension(300, 64));
-        usersTable.setPreferredSize(new java.awt.Dimension(300, 64));
         usersTable.setSelectionForeground(new java.awt.Color(0, 0, 0));
         usersTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -213,7 +215,7 @@ public class ListOfUsers extends javax.swing.JFrame {
         jScrollPane1.setViewportView(usersTable);
 
         getContentPane().add(jScrollPane1);
-        jScrollPane1.setBounds(20, 60, 470, 380);
+        jScrollPane1.setBounds(20, 50, 527, 440);
 
         btnChangePermission.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         btnChangePermission.setText("Change Permission");
@@ -225,7 +227,7 @@ public class ListOfUsers extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnChangePermission);
-        btnChangePermission.setBounds(260, 20, 230, 33);
+        btnChangePermission.setBounds(320, 10, 230, 33);
 
         btnRemoveUser.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         btnRemoveUser.setText("Remove User");
@@ -237,7 +239,7 @@ public class ListOfUsers extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnRemoveUser);
-        btnRemoveUser.setBounds(20, 20, 230, 33);
+        btnRemoveUser.setBounds(80, 10, 230, 33);
 
         labBack.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/back.png"))); // NOI18N
         labBack.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -247,22 +249,17 @@ public class ListOfUsers extends javax.swing.JFrame {
             }
         });
         getContentPane().add(labBack);
-        labBack.setBounds(510, 360, 80, 80);
+        labBack.setBounds(550, 420, 70, 70);
 
         labBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/21.jpg"))); // NOI18N
-        labBackground.setMaximumSize(new java.awt.Dimension(700, 565));
-        labBackground.setMinimumSize(new java.awt.Dimension(700, 565));
-        labBackground.setPreferredSize(new java.awt.Dimension(700, 565));
         getContentPane().add(labBackground);
-        labBackground.setBounds(0, 0, 740, 460);
+        labBackground.setBounds(0, 0, 620, 500);
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void usersTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usersTableMouseClicked
-        revalidate();
-        repaint();
         int selectedRow = usersTable.getSelectedRow();
         id = 0;
         if (selectedRow != -1) {
@@ -270,8 +267,6 @@ public class ListOfUsers extends javax.swing.JFrame {
             id = (int) usersTable.getModel().getValueAt(usersTable.getSelectedRow(), 0);
             userName = (String) usersTable.getValueAt(selectedRow, 3);
         }
-        revalidate();
-        repaint();
     }//GEN-LAST:event_usersTableMouseClicked
 
 
@@ -281,8 +276,8 @@ public class ListOfUsers extends javax.swing.JFrame {
                 ConnectionUtil myConnection = new ConnectionUtil();
                 myConnection.openConnection();
 
-                myConnection.setStatus(1);
                 myConnection.findUserById(id);
+                myConnection.setStatus(1);
 
                 ConnectionData dataResponse
                         = (ConnectionData) myConnection.getOis().readObject();
@@ -316,14 +311,15 @@ public class ListOfUsers extends javax.swing.JFrame {
                         }
                         if (option == JOptionPane.OK_OPTION) {
 
-                            myConnection.setStatus(0);
                             myConnection.changePermission(id);
+                            myConnection.setStatus(0);
 
+                            initTable();
                         }
 
                     }
+                    myConnection.closeConnection();
                 }
-                myConnection.closeConnection();
             } catch (IOException ex) {
                 Logger.getLogger(ListOfUsers.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
@@ -381,6 +377,7 @@ public class ListOfUsers extends javax.swing.JFrame {
                             myConnection.setStatus(0);
                             myConnection.removeAccount(u);
 
+                            dtm.removeRow(usersTable.getSelectedRow());
                             initTable();
                         }
                     }
@@ -404,31 +401,17 @@ public class ListOfUsers extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRemoveUserActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        if (!serverUp) {
-            if (this.language.equals("iw")) {
-                JOptionPane.showMessageDialog(null, "השרת בתחזוקה כרגע.. נסה מאוחר יותר\n ניתן לשחק כאורח", "שגיאה",
-                        JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(null, "The server is under"
-                        + " maintenance!\nPlease try again later\n"
-                        + "In the meantime you can play as a guest", "Error",
-                        JOptionPane.INFORMATION_MESSAGE);
-            }
-            this.dispose();
-            new WelcomeScreen().setVisible(true);
+        int confirmed = JOptionPane.NO_OPTION;
+        if (this.language.equals("iw")) {
+            confirmed = LocalizationUtil.exitDialog();
         } else {
-            int confirmed = JOptionPane.NO_OPTION;
-            if (this.language.equals("iw")) {
-                confirmed = LocalizationUtil.exitDialog();
-            } else {
-                confirmed = JOptionPane.showConfirmDialog(null,
-                        "Are you sure you want to exit the program?",
-                        "Exit Program",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-            }
-            if (confirmed == JOptionPane.YES_OPTION) {
-                System.exit(0);
-            }
+            confirmed = JOptionPane.showConfirmDialog(null,
+                    "Are you sure you want to exit the program?",
+                    "Exit Program",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        }
+        if (confirmed == JOptionPane.YES_OPTION) {
+            System.exit(0);
         }
     }//GEN-LAST:event_formWindowClosing
 

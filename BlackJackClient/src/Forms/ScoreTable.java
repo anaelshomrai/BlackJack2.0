@@ -106,6 +106,9 @@ public class ScoreTable extends javax.swing.JFrame {
     private void initTable() {
         try {
             GameUtil.setIcon(this);
+            jScrollPane1.setOpaque(false);
+            jScrollPane1.getViewport().setOpaque(false);
+            scoreTable.setShowGrid(false);
 
             dtm = new DefaultTableModel();
             Vector columnsName = new Vector();
@@ -149,9 +152,6 @@ public class ScoreTable extends javax.swing.JFrame {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ScoreTable.class.getName()).log(Level.SEVERE, null, ex);
         }
-        jScrollPane1.setOpaque(false);
-        jScrollPane1.getViewport().setOpaque(false);
-        scoreTable.setShowGrid(false);
 
     }
 
@@ -171,8 +171,7 @@ public class ScoreTable extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("BlackJack ANI");
         setForeground(java.awt.Color.black);
-        setName("scoreTable"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(700, 564));
+        setName("highScoreFrame"); // NOI18N
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -181,7 +180,6 @@ public class ScoreTable extends javax.swing.JFrame {
         });
         getContentPane().setLayout(null);
 
-        scoreTable.setBackground(new java.awt.Color(51, 204, 255));
         scoreTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
