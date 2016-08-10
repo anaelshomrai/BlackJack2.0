@@ -87,7 +87,6 @@ public class ListOfUsers extends javax.swing.JFrame {
     }
 
     private void initTable() {
-        this.getContentPane().setBackground(Color.BLACK);
 
         GameUtil.setIcon(this);
         dtm = new DefaultTableModel() {
@@ -150,6 +149,10 @@ public class ListOfUsers extends javax.swing.JFrame {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(WelcomeScreen.class.getName()).log(Level.SEVERE, null, ex);
         }
+        jScrollPane1.setOpaque(false);
+        jScrollPane1.getViewport().setOpaque(false);
+        usersTable.setShowGrid(false);
+        usersTable.setBackground(new Color(0, 255, 0, 0));
     }
 
     /**
@@ -170,6 +173,7 @@ public class ListOfUsers extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("BlackJack ANI - ADMIN");
+        setPreferredSize(new java.awt.Dimension(598, 479));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -197,6 +201,9 @@ public class ListOfUsers extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        usersTable.setMaximumSize(new java.awt.Dimension(300, 64));
+        usersTable.setMinimumSize(new java.awt.Dimension(300, 64));
+        usersTable.setPreferredSize(new java.awt.Dimension(300, 64));
         usersTable.setSelectionForeground(new java.awt.Color(0, 0, 0));
         usersTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -206,7 +213,7 @@ public class ListOfUsers extends javax.swing.JFrame {
         jScrollPane1.setViewportView(usersTable);
 
         getContentPane().add(jScrollPane1);
-        jScrollPane1.setBounds(20, 50, 527, 440);
+        jScrollPane1.setBounds(20, 60, 470, 380);
 
         btnChangePermission.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         btnChangePermission.setText("Change Permission");
@@ -218,7 +225,7 @@ public class ListOfUsers extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnChangePermission);
-        btnChangePermission.setBounds(270, 10, 230, 33);
+        btnChangePermission.setBounds(260, 20, 230, 33);
 
         btnRemoveUser.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         btnRemoveUser.setText("Remove User");
@@ -230,9 +237,9 @@ public class ListOfUsers extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnRemoveUser);
-        btnRemoveUser.setBounds(30, 10, 230, 33);
+        btnRemoveUser.setBounds(20, 20, 230, 33);
 
-        labBack.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/specialBack.png"))); // NOI18N
+        labBack.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/back.png"))); // NOI18N
         labBack.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labBack.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -240,17 +247,22 @@ public class ListOfUsers extends javax.swing.JFrame {
             }
         });
         getContentPane().add(labBack);
-        labBack.setBounds(510, 10, 32, 32);
+        labBack.setBounds(510, 360, 80, 80);
 
-        labBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/ListUsersBackground.jpg"))); // NOI18N
+        labBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/21.jpg"))); // NOI18N
+        labBackground.setMaximumSize(new java.awt.Dimension(700, 565));
+        labBackground.setMinimumSize(new java.awt.Dimension(700, 565));
+        labBackground.setPreferredSize(new java.awt.Dimension(700, 565));
         getContentPane().add(labBackground);
-        labBackground.setBounds(0, 0, 570, 500);
+        labBackground.setBounds(0, 0, 740, 460);
 
-        setSize(new java.awt.Dimension(570, 525));
+        pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void usersTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usersTableMouseClicked
+        revalidate();
+        repaint();
         int selectedRow = usersTable.getSelectedRow();
         id = 0;
         if (selectedRow != -1) {
@@ -258,6 +270,8 @@ public class ListOfUsers extends javax.swing.JFrame {
             id = (int) usersTable.getModel().getValueAt(usersTable.getSelectedRow(), 0);
             userName = (String) usersTable.getValueAt(selectedRow, 3);
         }
+        revalidate();
+        repaint();
     }//GEN-LAST:event_usersTableMouseClicked
 
 

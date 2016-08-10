@@ -369,20 +369,7 @@ public class ConnectionUtil {
             Logger.getLogger(ConnectionUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    public void enterGame(User user) {
-        try {
-            gameData = new GameData();
-            gameData.setUser(user);
-            gameData.setRequestCode(GameData.ENTER_GAME);
-            oos.writeObject(gameData);
-            oos.flush();
-            oos.reset();
-        } catch (IOException ex) {
-            Logger.getLogger(ConnectionUtil.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
+    
     public void exitGame(User user) {
         try {
             gameData = new GameData();

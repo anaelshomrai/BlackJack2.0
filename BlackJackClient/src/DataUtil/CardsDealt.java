@@ -22,6 +22,8 @@ public class CardsDealt implements Serializable{
     private List<Card> cards = new ArrayList<>();
     /** The deck of the user, after pulling his cards. */
     private Deck deck;
+    
+    private boolean blackjack = false;
 
     /** Default constructor. Initializes an empty cardsDealt object. */
     public CardsDealt() { }
@@ -118,6 +120,14 @@ public class CardsDealt implements Serializable{
      */
     public void setDeck(Deck deck) {
         this.deck = deck;
+    }
+
+    public boolean isBlackjack() {
+        return blackjack;
+    }
+
+    public void setBlackjack(boolean blackjack) {
+        this.blackjack = blackjack;
     }
     
     

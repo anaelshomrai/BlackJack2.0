@@ -149,6 +149,9 @@ public class ScoreTable extends javax.swing.JFrame {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ScoreTable.class.getName()).log(Level.SEVERE, null, ex);
         }
+        jScrollPane1.setOpaque(false);
+        jScrollPane1.getViewport().setOpaque(false);
+        scoreTable.setShowGrid(false);
 
     }
 
@@ -169,6 +172,7 @@ public class ScoreTable extends javax.swing.JFrame {
         setTitle("BlackJack ANI");
         setForeground(java.awt.Color.black);
         setName("scoreTable"); // NOI18N
+        setPreferredSize(new java.awt.Dimension(700, 564));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -193,9 +197,9 @@ public class ScoreTable extends javax.swing.JFrame {
         jScrollPane1.setViewportView(scoreTable);
 
         getContentPane().add(jScrollPane1);
-        jScrollPane1.setBounds(10, 70, 440, 390);
+        jScrollPane1.setBounds(10, 80, 440, 420);
 
-        labBack.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/specialBack.png"))); // NOI18N
+        labBack.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/back.png"))); // NOI18N
         labBack.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labBack.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -203,7 +207,7 @@ public class ScoreTable extends javax.swing.JFrame {
             }
         });
         getContentPane().add(labBack);
-        labBack.setBounds(410, 10, 42, 55);
+        labBack.setBounds(620, 0, 70, 80);
 
         labHighScore.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
         labHighScore.setForeground(new java.awt.Color(255, 255, 255));
@@ -213,7 +217,7 @@ public class ScoreTable extends javax.swing.JFrame {
         labHighScore.setMinimumSize(new java.awt.Dimension(227, 44));
         labHighScore.setPreferredSize(new java.awt.Dimension(227, 44));
         getContentPane().add(labHighScore);
-        labHighScore.setBounds(120, 10, 251, 44);
+        labHighScore.setBounds(240, 20, 251, 44);
 
         btnGroupSort.add(jrdbBalance);
         jrdbBalance.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -225,7 +229,7 @@ public class ScoreTable extends javax.swing.JFrame {
             }
         });
         getContentPane().add(jrdbBalance);
-        jrdbBalance.setBounds(0, 10, 120, 23);
+        jrdbBalance.setBounds(10, 10, 120, 23);
 
         btnGroupSort.add(jrdbWins);
         jrdbWins.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -237,13 +241,16 @@ public class ScoreTable extends javax.swing.JFrame {
             }
         });
         getContentPane().add(jrdbWins);
-        jrdbWins.setBounds(0, 40, 120, 23);
+        jrdbWins.setBounds(10, 40, 120, 23);
 
-        labBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/scoreTableBackground.jpg"))); // NOI18N
+        labBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/highScoreBackground.jpg"))); // NOI18N
+        labBackground.setMaximumSize(new java.awt.Dimension(700, 564));
+        labBackground.setMinimumSize(new java.awt.Dimension(700, 564));
+        labBackground.setPreferredSize(new java.awt.Dimension(700, 564));
         getContentPane().add(labBackground);
-        labBackground.setBounds(-6, -6, 470, 480);
+        labBackground.setBounds(0, 0, 700, 564);
 
-        setSize(new java.awt.Dimension(470, 500));
+        pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 

@@ -57,8 +57,6 @@ public class GameData implements Serializable {
      */
     public static final int DONE = 7;
     
-    public static final int ENTER_GAME = 8;
-    
     public static final int EXIT_GAME = 9;
     
     public static final int CONTINUE = 10;
@@ -88,6 +86,7 @@ public class GameData implements Serializable {
     private User user;
     private String player1Name;
     private String player2Name;
+    private boolean changeGame;
 
     public int getStatus() {
         return status;
@@ -463,4 +462,13 @@ public class GameData implements Serializable {
         this.player2Name = player2Name;
     }
 
+    public boolean isChangeGame() {
+        return changeGame;
+    }
+
+    public void setChangeGame(boolean changeGame) {
+        this.changeGame = changeGame;
+    }
+    
+    
 }

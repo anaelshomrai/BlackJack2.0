@@ -29,7 +29,7 @@ public class WinningPopup extends javax.swing.JFrame implements Runnable {
 
         jLabel1 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setName("winningPopupFrame"); // NOI18N
         setPreferredSize(new java.awt.Dimension(490, 300));
         addWindowListener(new java.awt.event.WindowAdapter() {

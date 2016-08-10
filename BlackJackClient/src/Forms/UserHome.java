@@ -3,15 +3,21 @@ package Forms;
 import Resources.GameUtil;
 import Resources.LocalizationUtil;
 import Users.User;
+import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.plaf.basic.BasicMenuBarUI;
+import javax.swing.plaf.basic.BasicMenuItemUI;
 
 /**
  *
@@ -78,7 +84,6 @@ public class UserHome extends javax.swing.JFrame {
         mnuItemGameRules.setText(LocalizationUtil.localizedResourceBundle
                 .getString("mnuItemGameRules"));
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -88,10 +93,6 @@ public class UserHome extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        loadingDialog = new javax.swing.JDialog();
-        waiting = new javax.swing.JLabel();
-        loading = new javax.swing.JLabel();
-        exitButton = new javax.swing.JButton();
         btnPlay = new javax.swing.JButton();
         btnScoreTable = new javax.swing.JButton();
         labWelcomeUser = new javax.swing.JLabel();
@@ -104,27 +105,6 @@ public class UserHome extends javax.swing.JFrame {
         mnuItmChangePassword = new javax.swing.JMenuItem();
         mnuItmRemoveAccount = new javax.swing.JMenuItem();
         mnuItemGameRules = new javax.swing.JMenuItem();
-
-        loadingDialog.setName("loadingDialog"); // NOI18N
-        loadingDialog.setPreferredSize(new java.awt.Dimension(300, 200));
-        loadingDialog.getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        waiting.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        waiting.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        waiting.setText("Waiting For Players..");
-        loadingDialog.getContentPane().add(waiting, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 300, 60));
-
-        loading.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        loading.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/loading.gif"))); // NOI18N
-        loadingDialog.getContentPane().add(loading, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 70, 300, 40));
-
-        exitButton.setText("EXIT");
-        exitButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exitButtonActionPerformed(evt);
-            }
-        });
-        loadingDialog.getContentPane().add(exitButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 140, 140, -1));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setResizable(false);
@@ -192,8 +172,12 @@ public class UserHome extends javax.swing.JFrame {
         getContentPane().add(labBackground);
         labBackground.setBounds(0, -30, 632, 435);
 
+        menuBar.setToolTipText("");
+
+        mnuAccount.setBackground(new java.awt.Color(0, 0, 0));
         mnuAccount.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/account.png"))); // NOI18N
         mnuAccount.setText("My Account");
+        mnuAccount.setToolTipText("Account Details");
         mnuAccount.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         mnuItmAbout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/about.png"))); // NOI18N
@@ -410,7 +394,6 @@ public class UserHome extends javax.swing.JFrame {
 //        loadingDialog.revalidate();
 //        loadingDialog.repaint();
 
-
         TheGame game;
         if (this.language.equals("iw")) {
             game = new TheGame(player, this, this.language);
@@ -419,12 +402,6 @@ public class UserHome extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_btnPlayOnlineActionPerformed
-
-    private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed
-        loadingDialog.setVisible(false);
-        this.setVisible(true);
-
-    }//GEN-LAST:event_exitButtonActionPerformed
 
     public void finishUpdatingGame(User user) {
         player.update();
@@ -435,18 +412,14 @@ public class UserHome extends javax.swing.JFrame {
     protected javax.swing.JButton btnPlay;
     protected javax.swing.JButton btnPlayOnline;
     protected javax.swing.JButton btnScoreTable;
-    protected javax.swing.JButton exitButton;
     protected javax.swing.JLabel labBack;
     protected javax.swing.JLabel labBackground;
     protected javax.swing.JLabel labWelcomeUser;
-    protected javax.swing.JLabel loading;
-    protected javax.swing.JDialog loadingDialog;
     protected javax.swing.JMenuBar menuBar;
     protected javax.swing.JMenu mnuAccount;
     protected javax.swing.JMenuItem mnuItemGameRules;
     protected javax.swing.JMenuItem mnuItmAbout;
     protected javax.swing.JMenuItem mnuItmChangePassword;
     protected javax.swing.JMenuItem mnuItmRemoveAccount;
-    protected javax.swing.JLabel waiting;
     // End of variables declaration//GEN-END:variables
 }

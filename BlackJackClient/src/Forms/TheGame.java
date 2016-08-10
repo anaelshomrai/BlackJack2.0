@@ -16,17 +16,12 @@ import static blackjack.Utils.diamondsImages;
 import static blackjack.Utils.heartsImages;
 import static blackjack.Utils.spadesImages;
 import blackjackclient.ConnectionUtil;
-import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -37,7 +32,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -144,6 +138,10 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
     private long player1Id;
     private long player2Id;
     boolean gameOf2 = false;
+    boolean changeGame = false;
+    BoardPanel boardPanel;
+    int option = 99;
+    private Thread winningPopup;
 
     JLabel timeLabel;
     int time;
@@ -184,7 +182,7 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
     }
 
     public static void main(String[] args) {
-        new TheGame().init();
+        new TheGame().initializeGUI();
     }
 
     //The one
@@ -209,25 +207,26 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
             boolean isStarted = dataResponse.isGameStart();
 
             if (isStarted == false) {
-                int answer = new JOptionPaneExample(this).getAnswer();
-                if (answer == JOptionPane.OK_OPTION) {
+                option = new MyJOptionPane(this).getAnswer();
+                if (option == JOptionPane.OK_OPTION) {
                     myConnection.continueToGame();
-                } else if (answer == JOptionPane.CANCEL_OPTION) {
+                } else if (option == JOptionPane.CANCEL_OPTION) {
                     myConnection.exitGame(player);
                     myConnection.closeConnection();
                     previous.setVisible(true);
                     setVisible(false);
                     dispose();
                 }
+            } else {
+                myConnection.continueToGame();
             }
 
-            while (!isStarted) {
-
-                dataResponse
-                        = (GameData) myConnection.getOis().readObject();
-                numOfPlayers = dataResponse.getPlayerNum();
-                isStarted = dataResponse.isGameStart();
-            }
+//            if (!isStarted) {
+            dataResponse
+                    = (GameData) myConnection.getOis().readObject();
+            numOfPlayers = dataResponse.getPlayerNum();
+            isStarted = dataResponse.isGameStart();
+//            }
             gameOn = true;
             this.deck = dataResponse.getDeck();
             myId = dataResponse.getMyId();
@@ -256,12 +255,22 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
     }
 
     public void initializeGUI() {
-        init();
+        gameOf2 = false;
+        Utils.map.put(Utils.SUIT.SPADES, spadesImages);
+        Utils.map.put(Utils.SUIT.HEARTS, heartsImages);
+        Utils.map.put(Utils.SUIT.DIAMONDS, diamondsImages);
+        Utils.map.put(Utils.SUIT.CLUBS, clubsImages);
+        Utils.cardImages = Collections.unmodifiableMap(Utils.map);
+        initFrame();
         waitForYourTurn();
 
     }
 
     public void initializeGUI2() {
+        gameOf2 = true;
+        if (changeGame) {
+            myName.setText(player.getUserName());
+        }
         Utils.map.put(Utils.SUIT.SPADES, spadesImages);
         Utils.map.put(Utils.SUIT.HEARTS, heartsImages);
         Utils.map.put(Utils.SUIT.DIAMONDS, diamondsImages);
@@ -280,15 +289,6 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
     public void waitForYourTurn2() {
         Thread thread = new Thread(new Listener2());
         thread.start();
-    }
-
-    public void init() {
-        Utils.map.put(Utils.SUIT.SPADES, spadesImages);
-        Utils.map.put(Utils.SUIT.HEARTS, heartsImages);
-        Utils.map.put(Utils.SUIT.DIAMONDS, diamondsImages);
-        Utils.map.put(Utils.SUIT.CLUBS, clubsImages);
-        Utils.cardImages = Collections.unmodifiableMap(Utils.map);
-        initFrame();
     }
 
     public void initFrame() {
@@ -322,7 +322,7 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
         //init messgae panel may be gone
         initInfoPanel();
 
-        BoardPanel boardPanel = new BoardPanel("./src/img/background.png");
+        boardPanel = new BoardPanel("./src/img/background.png");
         boardPanel.setLayout(null);
         boardPanel.setSize(new Dimension(800, 700));
         boardPanel.setPreferredSize(new Dimension(800, 700));
@@ -330,17 +330,17 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
         boardPanel.add(myName);
         myName.setBounds(290, 635, 80, 30);
         myName.setFont(new java.awt.Font("Tahoma", 1, 18));
-        myName.setForeground(new java.awt.Color(255, 255, 255));
+        myName.setForeground(new java.awt.Color(246, 246, 60));
 
         boardPanel.add(player1Name);
         player1Name.setBounds(30, 635, 80, 30);
         player1Name.setFont(new java.awt.Font("Tahoma", 1, 18));
-        player1Name.setForeground(new java.awt.Color(255, 255, 255));
+        player1Name.setForeground(new java.awt.Color(0, 0, 0));
 
         boardPanel.add(player2Name);
         player2Name.setBounds(550, 635, 80, 30);
         player2Name.setFont(new java.awt.Font("Tahoma", 1, 18));
-        player2Name.setForeground(new java.awt.Color(255, 255, 255));
+        player2Name.setForeground(new java.awt.Color(0, 0, 0));
 
         sound = new JButton();
         sound.setActionCommand(SOUND);
@@ -411,20 +411,20 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
         //init messgae panel may be gone
         initInfoPanel();
 
-        BoardPanel boardPanel = new BoardPanel("./src/img/background.png");
+        boardPanel = new BoardPanel("./src/img/background.png");
         boardPanel.setLayout(null);
         boardPanel.setSize(new Dimension(800, 700));
         boardPanel.setPreferredSize(new Dimension(800, 700));
 
         boardPanel.add(myName);
-        myName.setBounds(290, 635, 80, 30);
+        myName.setBounds(460, 635, 80, 30);
         myName.setFont(new java.awt.Font("Tahoma", 1, 18));
-        myName.setForeground(new java.awt.Color(255, 255, 255));
+        myName.setForeground(new java.awt.Color(0, 0, 0));
 
         boardPanel.add(player1Name);
-        player1Name.setBounds(30, 635, 80, 30);
+        player1Name.setBounds(200, 635, 80, 30);
         player1Name.setFont(new java.awt.Font("Tahoma", 1, 18));
-        player1Name.setForeground(new java.awt.Color(255, 255, 255));
+        player1Name.setForeground(new java.awt.Color(0, 0, 0));
 
         sound = new JButton();
         sound.setActionCommand(SOUND);
@@ -462,6 +462,18 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
         if (this.language.equals("iw")) {
             changeToHebrew();
         }
+    }
+
+    public void changeTo2PlayersGUI() {
+
+        boardPanel.remove(player2Name);
+        myName.setBounds(460, 635, 80, 30);
+        player1Name.setBounds(200, 635, 80, 30);
+        myCardsPanel.setBounds(460, 460, 260, 200);
+        mySplitCardsPanel.setBounds(460, 280, 260, 200);
+        player1CardsPanel.setBounds(200, 460, 260, 200);
+        player1SplitCardsPanel.setBounds(200, 280, 260, 200);
+        waitForYourTurn2();
     }
 
     public void initInfoPanel() {
@@ -616,13 +628,13 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
             frame.getContentPane().add(player2SplitCardsPanel);
             player2SplitCardsPanel.setBounds(550, 280, 260, 200);
         } else {
-            myCardsPanel.setBounds(140, 460, 260, 200);
+            myCardsPanel.setBounds(460, 460, 260, 200);
 
-            mySplitCardsPanel.setBounds(140, 280, 260, 200);
+            mySplitCardsPanel.setBounds(460, 280, 260, 200);
 
-            player1CardsPanel.setBounds(400, 460, 260, 200);
+            player1CardsPanel.setBounds(200, 460, 260, 200);
 
-            player1SplitCardsPanel.setBounds(400, 280, 260, 200);
+            player1SplitCardsPanel.setBounds(200, 280, 260, 200);
 
         }
     }
@@ -833,7 +845,7 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
                 if (currentHand.isBlackjack() == true) {
                     updateState(Utils.GameState.RESOLVE);
                     blackjack = true;
-                    //myConnection.setBlackjack(blackjack);
+//                    myConnection.setBlackjack(blackjack);
                 }
                 myConnection.setCardsNDeck(cards, deck, dealerHand);
 
@@ -928,8 +940,8 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
                         systemMessage.setText(winLabel);
                     }
                     if (playSounds) {
-                        Thread t = new Thread(new WinningPopup());
-                        t.start();
+                        winningPopup = new Thread(new WinningPopup());
+                        winningPopup.start();
                     }
                     win = 1;
 
@@ -1145,7 +1157,9 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
                     Collections.reverse(myCards);
                 }
                 myConnection.setCardsAdded(true);
-                GameUtil.playShuffle();
+                if (playSounds) {
+                    GameUtil.playShuffle();
+                }
                 JLabel labToAdd = new JLabel();
                 Card c = dealCard(labToAdd);
                 playerHands.get(currentHandIndex).AddCard(c);
@@ -1268,25 +1282,25 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
 
     public void nextTurn() {
 
-//        switch (stage) {
-//            case BET:
-//                betAmountTextField.setText("15");
-//                betButton.doClick();
-//                timeLabel.setText("");
-//                repaint();
-//                break;
-//            case HIT:
-//                stayButton.doClick();
-//                timeLabel.setText("");
-//                repaint();
-//                break;
-//            case "OK":
-//                timer.stop();
-//                timeLabel.setText("");
-//                repaint();
-//                stage = "";
-//                break;
-//        }
+        switch (stage) {
+            case BET:
+                betAmountTextField.setText("15");
+                betButton.doClick();
+                timeLabel.setText("");
+                repaint();
+                break;
+            case HIT:
+                stayButton.doClick();
+                timeLabel.setText("");
+                repaint();
+                break;
+            case "OK":
+                timer.stop();
+                timeLabel.setText("");
+                repaint();
+                stage = "";
+                break;
+        }
     }
 
     public void clearGame() {
@@ -1722,13 +1736,19 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
             try {
                 dataResponse = (GameData) myConnection.getOis().readObject();
                 gameOn = dataResponse.isGameStart();
+                changeGame = dataResponse.isChangeGame();
             } catch (IOException ex) {
                 Logger.getLogger(TheGame.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(TheGame.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            if (gameOn) {
+            if (changeGame) {
+                clearGame();
+                changeTo2PlayersGUI();
+                frame.revalidate();
+                frame.repaint();
+            } else if (gameOn) {
                 deck = dataResponse.getDeck();
                 //game on = true            }
             } else {
@@ -1837,7 +1857,9 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
             deck = dataResponse.getDeck();
             List<CardsDealt> cardsDealt = dataResponse.getCardsDealt();
             int size = cardsDealt.size();
-            setOtherCards(cardsDealt.get(0));
+            if (size == 1) {
+                setOtherCards(cardsDealt.get(0));
+            }
 
         }
 
@@ -1945,13 +1967,13 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
             }
             deck = dataResponse.getDeck();
             myId = dataResponse.getMyId();
-            // player1Id = dataResponse.getPlayer1Id();
-            //player2Id = dataResponse.getPlayer2Id();
+            player1Id = dataResponse.getPlayer1Id();
+            player1Name.setText(dataResponse.getPlayer1Name());
         }
 
         @Override
         public void run() {
-            while (gameOn) {
+            while (gameOn || changeGame) {
                 check();
 
                 setBet();
@@ -1974,6 +1996,7 @@ public class TheGame extends JFrame implements ActionListener, Serializable {
                 }
 
                 checkingGameStatus();
+                changeGame = false;
             }
         }
     }

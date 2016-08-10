@@ -50,6 +50,7 @@ public class AdminHome extends UserHome {
         mnuAdminOptions.setText("Admin Options");   
         mnuAdminOptions.setCursor
         (Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        mnuAdminOptions.setToolTipText("Click for more options");
         menuBar.add(mnuAdminOptions);
         setJMenuBar(menuBar);
      }
