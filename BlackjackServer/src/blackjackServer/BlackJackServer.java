@@ -50,7 +50,15 @@ public class BlackJackServer {
      */
     protected List<GameThread> myQueue = new ArrayList<>();
 
-    protected HandleGame handleGame = new HandleGame();
+    /**
+     * if more players waiting for the game
+     */
+    boolean morePlayersAvailable = false;
+
+    /**
+     * if a game of 2 players is avaliable
+     */
+    boolean lessPlayersAvaliable = false;
 
     /**
      * This constructor initialize the server with the given port,
@@ -118,15 +126,15 @@ public class BlackJackServer {
         return myQueue.size();
     }
 
-    public HandleGame getHandleGame() {
-        return handleGame;
-    }
-
-    public void setHandleGame(HandleGame handleGame) {
-        this.handleGame = handleGame;
-    }
-
-    void removePlayer(ConnectionThread connection, User user) {
+    /**
+     * This method called when a player send an EXIT_GAME request code when he
+     * is waiting for players. the method removes the player from the queue of
+     * the game, and from the threads list.
+     *
+     * @param connection the ConnectionThread who handle this client.
+     * @param user the user;
+     */
+    public void removePlayer(ConnectionThread connection, User user) {
         synchronized (this) {
             GameThread toRemove = new GameThread(connection, user);
             myQueue.remove(toRemove);
@@ -140,7 +148,7 @@ public class BlackJackServer {
      * This class handles a game when the queue reaches to 3 players. This class
      * is responsible for managing the game state, and the players in the game.
      */
-    public class HandleGame {
+    public class HandleGameOf3 implements Runnable {
 
         /**
          * a queue containing the 3 players of this game
@@ -172,28 +180,19 @@ public class BlackJackServer {
         boolean gameOn = false;
 
         /**
-         * This method called when an IOEception is thrown, meaning the client
-         * has disconnected or closed this connection. the client is still in
-         * the list, and wont be removed until the game ends, instead we mark
-         * this client with a disconnected flag, and decrement the variable
-         * stillInGame.
-         *
-         * @param c the client who disconnected from the game.
+         * Create a new thread to run the game.
          */
-        public void clientDisconnected(GameThread c) {
-            System.out.println(c.getConnectionThread().getId() + c.getConnectionThread().getName() + " Has disconected");
-            if (!c.isDisconnected()) {
-                stillInGame--;
-                c.setDisconnected(true);
-            }
-
+        public void startGame() {
+            Thread game = new Thread(this);
+            game.start();
         }
 
         /**
          * This method is running as long the game is running, calling to the
          * methods according to the different states in a game.
          */
-        public synchronized void startGame() {
+        @Override
+        public void run() {
             queue = new ArrayList<>(myQueue);
             numOfPlayers = queue.size();
             stillInGame = numOfPlayers;
@@ -223,36 +222,49 @@ public class BlackJackServer {
                 // go to dealer- finish game
                 finishGame();
 
+                // check if we still have 3 players in game
                 checkingPlayers();
             }
-
         }
 
         /**
          * This method happens at the end of each game, to ensure there are
          * still 3 players in the game. if the game contains 3 players, the game
-         * will start again. else, the game will be over.
+         * will start again. if we have 2 players left in the game, we will
+         * start a game of 2.
          */
         public void checkingPlayers() {
+            List<GameThread> toRemove = new ArrayList<>();
             int count = 3;
             for (GameThread c : queue) {
                 if (c.isDisconnected()) {
                     count--;
                     System.out.println("Players left in the game " + count);
                     gameOn = false;
+                    toRemove.add(c);
                 }
                 c.setBlackjack(false);
             }
+            for (GameThread remove : toRemove) {
+                queue.remove(remove);
+            }
+
             responseData = new GameData();
-            if (gameOn) {
+            boolean gameOf2 = false;
+            if (count == 2) {
+                gameOf2 = true;
+            }
+
+            if (gameOf2) {
+                lessPlayersAvaliable = true;
+                responseData.setChangeGame(true);
+            } else if (gameOn) {
                 numOfPlayers = 3;
                 stillInGame = 3;
                 deck = new Deck();
                 responseData.setGameStart(true);
                 responseData.setDeck(deck);
-
             } else {
-                responseData = new GameData();
                 responseData.setGameStart(false);
             }
             for (GameThread c : queue) {
@@ -268,13 +280,21 @@ public class BlackJackServer {
                     }
                 }
             }
-            GameThread first = queue.get(0);
-            GameThread second = queue.get(1);
-            GameThread third = queue.get(2);
 
-            queue.set(0, second);
-            queue.set(1, third);
-            queue.set(2, first);
+            if (gameOf2) {
+
+                HandleGameOf2 game = new HandleGameOf2();
+                game.continueToThisGame(queue);
+                game.startGame();
+            } else if (gameOn) {
+                GameThread first = queue.get(0);
+                GameThread second = queue.get(1);
+                GameThread third = queue.get(2);
+
+                queue.set(0, second);
+                queue.set(1, third);
+                queue.set(2, first);
+            }
         }
 
         /**
@@ -377,12 +397,14 @@ public class BlackJackServer {
                         recived.setCards(requestData.getCards());
                         recived.setDeck(requestData.getDeck());
                         recived.setId(c.getConnectionThread().getId());
-                        allCards.add(recived);
                         deck = requestData.getDeck();
                         if (requestData.isBlackjack()) {
                             c.setBlackjack(true);
-                            stillInGame--;
+//                            stillInGame--;
+//                            recived.setBlackjack(true);
                         }
+                        allCards.add(recived);
+
                         responseData.setDeck(deck);
                         responseData.setDealerCards(requestData.getDealerCards());
 
@@ -556,14 +578,97 @@ public class BlackJackServer {
             }
         }
 
-        public void startGameOf2() {
-            queue = new ArrayList<>(myQueue);
+        /**
+         * This method called when an IOEception is thrown, meaning the client
+         * has disconnected or closed this connection. the client is still in
+         * the list, and wont be removed until the game ends, instead we mark
+         * this client with a disconnected flag, and decrement the variable
+         * stillInGame.
+         *
+         * @param c the client who disconnected from the game.
+         */
+        public void clientDisconnected(GameThread c) {
+            System.out.println(c.getConnectionThread().getId() + c.getConnectionThread().getName() + " Has disconected");
+            if (!c.isDisconnected()) {
+                stillInGame--;
+                c.setDisconnected(true);
+            }
+
+        }
+
+    }
+
+    /**
+     * This class handles a game of 2 players. This class is responsible for
+     * managing the game state, and the players in the game.
+     */
+    public class HandleGameOf2 implements Runnable {
+
+        /**
+         * a queue containing the 3 players of this game
+         */
+        List<GameThread> queue;
+        /**
+         * a game data object for sending objects to the clients
+         */
+        GameData responseData = new GameData();
+        /**
+         * a game data object for receiving objects from the clients
+         */
+        GameData requestData;
+        /**
+         * the server initialize a deck object
+         */
+        Deck deck = new Deck();
+        /**
+         * the size of the queue
+         */
+        int numOfPlayers;
+        /**
+         * number of players in the game (in cases client disconnected)
+         */
+        int stillInGame;
+        /**
+         * this game will run as long as the game is on
+         */
+        boolean gameOn = false;
+
+        /**
+         * Create a new thread to run the game.
+         */
+        public void startGame() {
+            Thread start = new Thread(this);
+            start.start();
+        }
+
+        /**
+         * When we move from a 3 players game to a 2 players game, we receives
+         * the queue.
+         * 
+         * @param queue the queue of the previous game
+         */
+        public void continueToThisGame(List<GameThread> queue) {
+            this.queue = queue;
+        }
+
+        /**
+         * This method is running as long the game is running, calling to the
+         * methods according to the different states in a game.
+         */
+        @Override
+        public synchronized void run() {
+            if (!lessPlayersAvaliable) {
+                queue = new ArrayList<>(myQueue);
+                myQueue.clear();
+            }
             numOfPlayers = queue.size();
             stillInGame = numOfPlayers;
-            myQueue.clear();
             gameOn = true;
-            // this section sets playersId and starting the game
-            setPlayersIdAndDeck2();
+
+            if (!lessPlayersAvaliable) {
+                // this section sets playersId and starting the game
+                setPlayersIdAndDeck2();
+            }
 
             while (gameOn) {
                 setPlayersIdAndDeck2();
@@ -586,10 +691,15 @@ public class BlackJackServer {
                 // go to dealer- finish game
                 finishGame();
 
+                // check if we still 2 players in the game
                 checkingPlayers2();
             }
         }
 
+        /**
+         * This method sets the initial variables for starting the game. this
+         * method send to each client the id and the name of the other player.
+         */
         private void setPlayersIdAndDeck2() {
             responseData = new GameData();
             responseData.setDeck(deck);
@@ -625,16 +735,27 @@ public class BlackJackServer {
             }
         }
 
+        /**
+         * This method happens at the end of each game, to ensure there are
+         * still 2 players in the game. if the game contains 2 players, the game
+         * will start again. else, the game will end.
+         */
         public void checkingPlayers2() {
             int count = 2;
+            List<GameThread> toRemove = new ArrayList<>();
             for (GameThread c : queue) {
                 if (c.isDisconnected()) {
                     count--;
                     System.out.println("Players left in the game " + count);
                     gameOn = false;
+                    toRemove.add(c);
                 }
                 c.setBlackjack(false);
             }
+            for (GameThread remove : toRemove) {
+                queue.remove(remove);
+            }
+
             responseData = new GameData();
             if (gameOn) {
                 numOfPlayers = 2;
@@ -666,6 +787,257 @@ public class BlackJackServer {
             queue.set(0, second);
             queue.set(1, first);
         }
+
+        /**
+         * This method taking the bet from each player according to his place in
+         * the queue.
+         */
+        public void setBets() {
+            responseData = new GameData();
+            for (GameThread c : queue) {
+                try {
+                    if (!c.isDisconnected()) {
+                        responseData.setRequestCode(GameData.YOUR_TURN);
+                        responseData.setPlayerNum(stillInGame);
+                        c.getConnectionThread().getOos().writeObject(responseData);
+                        c.getConnectionThread().getOos().flush();
+                        c.getConnectionThread().getOos().reset();
+
+                        requestData = (GameData) c.getConnectionThread().getOis().readObject();
+
+                    }
+
+                } catch (IOException ex) {
+                    Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+                    clientDisconnected(c);
+                    System.out.println("queue size " + stillInGame);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+        /**
+         * This method tells the clients they can go to DEALING state, then
+         * receives from the clients the cards they have been dealt with, and
+         * update the rest of the clients.
+         */
+        public void setCards() {
+            List<CardsDealt> allCards = new ArrayList<>();
+            responseData = new GameData();
+            for (GameThread c : queue) {
+                if (!c.isDisconnected()) {
+                    responseData.setDeck(deck);
+                    responseData.setState(Utils.GameState.DEALING);
+                    try {
+                        c.getConnectionThread().getOos().writeObject(responseData);
+                        c.getConnectionThread().getOos().flush();
+                        c.getConnectionThread().getOos().reset();
+
+                        requestData = (GameData) c.getConnectionThread().getOis().readObject();
+                        CardsDealt recived = new CardsDealt();
+                        recived.setCards(requestData.getCards());
+                        recived.setDeck(requestData.getDeck());
+                        recived.setId(c.getConnectionThread().getId());
+                        deck = requestData.getDeck();
+                        if (requestData.isBlackjack()) {
+                            c.setBlackjack(true);
+//                            stillInGame--;
+//                            recived.setBlackjack(true);
+                        }
+                        allCards.add(recived);
+
+                        responseData.setDeck(deck);
+                        responseData.setDealerCards(requestData.getDealerCards());
+
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex) {
+                        Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+                        clientDisconnected(c);
+                        System.out.println("queue size " + stillInGame);
+                    }
+                }
+
+            }
+            //this section sends the other players cards
+            int i = 0;
+            responseData = new GameData();
+            List<CardsDealt> cardsToSend = new ArrayList<>();
+            for (GameThread c : queue) {
+                if (!c.isDisconnected()) {
+                    for (CardsDealt cd : allCards) {
+                        if (!(cd.getId() == c.getConnectionThread().getId())) {
+                            cardsToSend.add(cd);
+                        }
+                    }
+                    responseData.setCardsDealt(cardsToSend);
+                    responseData.setPlayerNum(stillInGame);
+                    try {
+                        c.getConnectionThread().getOos().writeObject(responseData);
+                        c.getConnectionThread().getOos().flush();
+                        c.getConnectionThread().getOos().reset();
+                    } catch (IOException ex) {
+                        Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+                        clientDisconnected(c);
+                        System.out.println("queue size " + stillInGame);
+                    }
+
+                    cardsToSend.clear();
+                }
+            }
+
+        }
+
+        /**
+         * This method ensure all players are playing with the same deck.
+         */
+        public void setDeck() {
+            responseData = new GameData();
+            responseData.setDeck(deck);
+            responseData.setPlayerNum(stillInGame);
+            for (GameThread c : queue) {
+                if (!c.isDisconnected()) {
+                    try {
+                        c.getConnectionThread().getOos().writeObject(responseData);
+                        c.getConnectionThread().getOos().flush();
+                        c.getConnectionThread().getOos().reset();
+                    } catch (IOException ex) {
+                        Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+                        clientDisconnected(c);
+                        System.out.println("queue size " + stillInGame);
+                    }
+                }
+            }
+
+        }
+
+        /**
+         * This method tells the player he can go to HIITTING state according to
+         * his place in the queue. when the player is done, he sends his current
+         * state then we update all the other players in the game.
+         */
+        public void setPlayersMove() {
+            List<CardsDealt> cardsToSend = new ArrayList<>();
+            responseData = new GameData();
+            CardsDealt cd = new CardsDealt();
+            for (GameThread c : queue) {
+                cardsToSend.clear();
+                if (!c.isDisconnected()) { // if (!c.isDisconnected() && !c.isBlackjack()) {
+                    responseData = new GameData();
+                    responseData.setRequestCode(GameData.YOUR_TURN);
+                    responseData.setPlayerNum(stillInGame);
+                    responseData.setDeck(deck);
+                    try {
+                        c.getConnectionThread().getOos().writeObject(responseData);
+                        c.getConnectionThread().getOos().flush();
+                        c.getConnectionThread().getOos().reset();
+                    } catch (IOException ex) {
+                        Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+                        clientDisconnected(c);
+                        System.out.println("queue size " + stillInGame);
+                    }
+
+                    try {
+                        requestData = (GameData) c.getConnectionThread().getOis().readObject();
+                    } catch (IOException ex) {
+                        Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+                        clientDisconnected(c);
+                        System.out.println("queue size " + stillInGame);
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    responseData = new GameData();
+                    responseData.setPlayerNum(stillInGame);
+                    responseData.setMyId(c.getConnectionThread().getId());
+                    if (requestData.isMoreCardsAdded()) {
+
+                        cd.setId(c.getConnectionThread().getId());
+                        cd.setDeck(requestData.getDeck());
+                        cd.setCards(requestData.getCards());
+
+                        cardsToSend.add(cd);
+
+                        if (requestData.isSplit()) {
+                            CardsDealt cdSplit = new CardsDealt();
+                            cdSplit.setCards(requestData.getSplitCards());
+                            cardsToSend.add(cdSplit);
+                            responseData.setSplit(true);
+                        }
+
+                        responseData.setCardsDealt(cardsToSend);
+                        responseData.setMoreCardsAdded(true);
+                        responseData.setDeck(requestData.getDeck());
+                        deck = requestData.getDeck();
+                    } else {
+                        responseData.setMoreCardsAdded(false);
+                    }
+                } else {
+                    responseData = new GameData();
+                    responseData.setPlayerNum(stillInGame);
+                    responseData.setMoreCardsAdded(false);
+                }
+
+                for (GameThread curr : queue) {
+                    if (!curr.isDisconnected()) {
+                        if (curr.getConnectionThread().getId() != c.getConnectionThread().getId()) {
+                            try {
+                                curr.getConnectionThread().getOos().writeObject(responseData);
+                                curr.getConnectionThread().getOos().flush();
+                                curr.getConnectionThread().getOos().reset();
+                            } catch (IOException ex) {
+                                Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+                                clientDisconnected(curr);
+                                System.out.println("queue size " + stillInGame);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        /**
+         * After all players make their move, the dealers reveal his card and
+         * hitting cards until he has at least 17.
+         */
+        public void finishGame() {
+            responseData = new GameData();
+            responseData.setState(Utils.GameState.DEALER);
+            for (GameThread c : queue) {
+                if (!c.isDisconnected()) {
+                    responseData.setPlayerNum(stillInGame);
+                    try {
+                        c.getConnectionThread().getOos().writeObject(responseData);
+                        c.getConnectionThread().getOos().flush();
+                        c.getConnectionThread().getOos().reset();
+                    } catch (IOException ex) {
+                        Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+                        clientDisconnected(c);
+                        System.out.println("queue size " + stillInGame);
+                    }
+                }
+            }
+        }
+
+        /**
+         * This method called when an IOEception is thrown, meaning the client
+         * has disconnected or closed this connection. the client is still in
+         * the list, and wont be removed until the game ends, instead we mark
+         * this client with a disconnected flag, and decrement the variable
+         * stillInGame.
+         *
+         * @param c the client who disconnected from the game.
+         */
+        public void clientDisconnected(GameThread c) {
+            System.out.println(c.getConnectionThread().getId() + c.getConnectionThread().getName() + " Has disconected");
+            if (!c.isDisconnected()) {
+                stillInGame--;
+                c.setDisconnected(true);
+            }
+
+        }
+
     }
 
 }

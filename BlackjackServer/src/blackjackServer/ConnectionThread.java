@@ -50,6 +50,8 @@ public class ConnectionThread extends Thread {
      */
     private BlackJackServer server;
 
+    private boolean gameOn = false;
+
     /**
      * This constructor initialize a new ConnectionThread object and sets client
      * socket.
@@ -163,16 +165,15 @@ public class ConnectionThread extends Thread {
     }
 
     /**
-     * This method handle with client request, there are two types of object the
+     * This method handle the client requests, there are two types of object the
      * client can send and receive, ConnectionData and GameData. When receiving
      * a ConnectionData, this method handle the request according to the
-     * RequestCode. When receiving a GameData , this method wait until there is
-     * 3 players, then activate the game through the server inner class handle
-     * game.
+     * RequestCode. When receiving a GameData , this method wait for a 3 players,
+     * but if a certain time has passed, checking if there is 2 players and
+     * activate a game of 2.
      *
      * @see DataUtil.ConnectionData
      * @see DataUtil.GameData
-     * @see blackjackServer.BlackJackServer.HandleGame
      */
     @Override
     public synchronized void run() {
@@ -295,25 +296,26 @@ public class ConnectionThread extends Thread {
                                 getOos().writeObject(responseData);
                                 getOos().flush();
                                 getOos().reset();
-                                try {
-                                    Thread.sleep(10000);
-                                } catch (InterruptedException ex) {
-                                    Logger.getLogger(ConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
-                                }
 
-                                size = server.getPlayesrsSize();
-                                if (size < 3 && size == 2) {
-                                    server.getHandleGame().startGameOf2();
-                                }
+                                Thread check = new Thread(new checkPlayersSize());
+                                check.start();
                             } else {
-                                server.getHandleGame().startGame();
+                                responseData.setPlayerNum(size);
+                                responseData.setGameStart(true);
+                                getOos().writeObject(responseData);
+                                getOos().flush();
+                                getOos().reset();
+                                gameOn = true;
+                                server.new HandleGameOf3().startGame();
                             }
 
                             System.out.println("clients awaits size: " + server.getPlayesrsSize());
                             break;
 
                         case GameData.EXIT_GAME:
+                            System.out.println("before remove " + server.getPlayesrsSize());
                             server.removePlayer(this, requestData.getUser());
+                            System.out.println("after remove " + server.getPlayesrsSize());
                             break;
 
                         case GameData.CONTINUE:
@@ -337,6 +339,34 @@ public class ConnectionThread extends Thread {
             //System.exit(1);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    /**
+     * This Class check every 1 minute if we have 2 players waiting for a game,
+     * if we found there is 2 players waiting for the game, and a third player
+     * hasn't join we start a game of 2 players.
+     */
+    public class checkPlayersSize implements Runnable {
+
+        /**
+         * Runs until a game start, game of 2 or game of 3.
+         */
+        @Override
+        public void run() {
+            while (!gameOn) {
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(ConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                int size = server.getPlayesrsSize();
+                if (size < 3 && size == 2) {
+                    gameOn = true;
+                    server.new HandleGameOf2().startGame();
+                }
+            }
         }
 
     }

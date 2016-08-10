@@ -53,46 +53,129 @@ public class GameData implements Serializable {
     public static final int GET_CARDS = 6;
 
     /**
-     * constant requestCode for when a player finish his turn.
+     * constant requestCode for when a player want to exit the game before the
+     * game has started
      */
-    public static final int DONE = 7;
-    
-    public static final int ENTER_GAME = 8;
-    
     public static final int EXIT_GAME = 9;
-    
+
+    /**
+     * constant requestCode for when a player want to continue to the game and
+     * keep waiting for players
+     *
+     */
     public static final int CONTINUE = 10;
 
     /**
      * constant requestCode for exiting the game.
      */
+    /**
+     * constant requestCode for when a thread is closed
+     */
     public static final int EXIT = -1;
 
+    /**
+     * the number of the constant request code
+     */
     private int requestCode;
+    /**
+     * if status = 0, that means no more object waiting to be read. if status =
+     * 1, that means there is still an object in the input stream.
+     */
     private int status = 0;
+    /**
+     * number of players in the game
+     */
     private int playerNum;
+    /**
+     * if the game started, that means we have 2/3 players
+     */
     private boolean gameStart = false;
+    /**
+     * the state of the game
+     *
+     * @see blackjack.Utils.GameState
+     */
     private Utils.GameState state;
+    /**
+     * when a player finish his turn.
+     */
     private boolean done;
+    /**
+     * deck of cards
+     */
     private Deck deck;
+    /**
+     * list of player cards
+     */
     private List<Card> cards = new ArrayList<>();
+    /**
+     * list of dealer cards the first players deals two cards to the dealer,
+     * then the rest of the players get those cards.
+     */
     private List<Card> dealerCards = new ArrayList<>();
+    /**
+     * list of player cards that dealt at their turn after the first 2.
+     */
     private List<CardsDealt> cardsDealt = new ArrayList<>();
+    /**
+     * list of player cards, in case of a split.
+     */
     private List<Card> splitCards;
+    /**
+     * if a player add cards in his turn
+     */
     private boolean moreCardsAdded = false;
+    /**
+     * if a split made by a player
+     */
     private boolean split = false;
+    /**
+     * if player has a blackjack
+     */
     private boolean blackjack = false;
+    /**
+     * id of the first player
+     */
     private long player1Id;
+    /**
+     * id of the second player
+     */
     private long player2Id;
+    /**
+     * id of the current player
+     */
     private long myId;
+    /**
+     * user is the player
+     */
     private User user;
+    /**
+     * the name of the first player
+     */
     private String player1Name;
+    /**
+     * the name of the second player
+     */
     private String player2Name;
+    /**
+     * id the game went from 3 players to 2 players game
+     */
+    private boolean changeGame;
 
+    /**
+     * Returns the status.
+     *
+     * @return status of the input stream
+     */
     public int getStatus() {
         return status;
     }
 
+    /**
+     * Sets the status. 0 - no more objects 1 - more objects on the way
+     *
+     * @param status status of the input stream
+     */
     public void setStatus(int status) {
         this.status = status;
     }
@@ -461,6 +544,24 @@ public class GameData implements Serializable {
      */
     public void setPlayer2Name(String player2Name) {
         this.player2Name = player2Name;
+    }
+
+    /**
+     * Returns if the game has gone from 3 players game to 2 players game.
+     *
+     * @return if the game changed players number.
+     */
+    public boolean isChangeGame() {
+        return changeGame;
+    }
+
+    /**
+     * Sets if the game has gone from 3 players game to 2 players game.
+     *
+     * @param changeGame if the game changed players number.
+     */
+    public void setChangeGame(boolean changeGame) {
+        this.changeGame = changeGame;
     }
 
 }

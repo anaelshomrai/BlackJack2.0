@@ -128,6 +128,9 @@ public class GameThread {
         this.user = user;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         int hash = 5;
@@ -136,6 +139,9 @@ public class GameThread {
         return hash;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof GameThread) {

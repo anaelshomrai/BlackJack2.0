@@ -508,7 +508,7 @@ public class DB {
      * 
      * @param userName the user name to search
      * @param password the password to search
-     * @return
+     * @return the user if found, or null if user doesn't exist.
      */
     public User login(String userName, String password) {
         User found = null;
