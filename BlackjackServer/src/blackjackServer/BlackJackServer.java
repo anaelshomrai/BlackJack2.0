@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 /**
  * This class is the server side application, it's responsible for creating a
@@ -24,7 +26,12 @@ import java.util.logging.Logger;
  *
  * @author ANI
  */
-public class BlackJackServer {
+public class BlackJackServer extends javax.swing.JFrame implements Runnable {
+
+    /**
+     * The port of the server
+     */
+    public static final int PORT = 44444;
 
     /**
      * the server socket
@@ -61,22 +68,126 @@ public class BlackJackServer {
     boolean lessPlayersAvaliable = false;
 
     /**
-     * This constructor initialize the server with the given port,
-     *
-     * @param port the port of server
+     * Creates new form Server
      */
-    public BlackJackServer(int port) {
+    public BlackJackServer() {
+        String file = "./src/icon.png";
+        ImageIcon img = new ImageIcon(file);
+        this.setIconImage(img.getImage());
+        initComponents();
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jLabel1 = new javax.swing.JLabel();
+        btnStopServer = new javax.swing.JButton();
+        btnStartServer = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextAreaLog = new javax.swing.JTextArea();
+        btnClear = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("My Blackjack Server");
+
+        btnStopServer.setText("Stop Server");
+        btnStopServer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnStopServerActionPerformed(evt);
+            }
+        });
+
+        btnStartServer.setText("Start Server");
+        btnStartServer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnStartServerActionPerformed(evt);
+            }
+        });
+
+        jTextAreaLog.setColumns(20);
+        jTextAreaLog.setRows(5);
+        jScrollPane1.setViewportView(jTextAreaLog);
+
+        btnClear.setText("Clear Log");
+        btnClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnClearActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnStartServer, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(27, 27, 27)
+                        .addComponent(btnStopServer, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(43, 43, 43))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(18, Short.MAX_VALUE))))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(187, 187, 187)
+                .addComponent(btnClear)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnStopServer, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnStartServer, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnClear)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        pack();
+        setLocationRelativeTo(null);
+    }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * This constructor initialize the server with the given port
+     *
+     * @param evt the event
+     */
+    private void btnStartServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartServerActionPerformed
         try {
-            serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(PORT);
             db.initUsers();
         } catch (IOException ex) {
             Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("faild on listinig port " + port);
+            jTextAreaLog.setText("faild on listinig port " + PORT);
         }
-        System.out.println("Server Started");
-        System.out.println("Listening on port " + port);
+        jTextAreaLog.setText("Server Started");
+        addTextTolog("Listening on port " + PORT);
         isConnected = true;
-    }
+        btnStartServer.setEnabled(false);
+        Thread listen = new Thread(this);
+        listen.start();
+    }//GEN-LAST:event_btnStartServerActionPerformed
 
     /**
      * This method runs while the server is connected, the server waits for
@@ -84,22 +195,113 @@ public class BlackJackServer {
      *
      * @see blackjackServer.ConnectionThread
      */
-    public void handleRequests() {
+    @Override
+    public void run() {
         while (isConnected) { //while server is up
             while (true) {
                 try {
                     Socket currentClient = serverSocket.accept();
-                    System.out.println("Client has connect");
+                    addTextTolog("Client connected from:\n"
+                            + currentClient.getLocalAddress().getHostName() + ", "
+                            + " port " + currentClient.getPort());
                     ConnectionThread currentConnection
                             = new ConnectionThread(currentClient, this);
                     currentConnection.start();
                     threads.add(currentConnection);
-                    System.out.println("From blackjackServer threads list size is " + threads.size());
                 } catch (IOException ex) {
                     Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
+    }
+
+    /**
+     * This method receive text and adds the text in a new line to the log.
+     *
+     * @param text the text to add to the log
+     */
+    public void addTextTolog(String text) {
+        jTextAreaLog.setText(jTextAreaLog.getText() + "\n" + text);
+    }
+
+    /**
+     * This method close the socket.
+     *
+     * @param evt the event
+     */
+    private void btnStopServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStopServerActionPerformed
+        try {
+            serverSocket.close();
+            jTextAreaLog.setText("Server Stopped");
+            isConnected = false;
+            btnStartServer.setEnabled(true);
+        } catch (IOException ex) {
+            Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnStopServerActionPerformed
+
+    /**
+     * This method clear the log.
+     *
+     * @param evt the event
+     */
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        jTextAreaLog.setText("");
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+
+        int confirmed = JOptionPane.NO_OPTION;
+        confirmed = JOptionPane.showConfirmDialog(null,
+                "Are you sure you want to exit the program?",
+                "Exit Program",
+                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (confirmed == JOptionPane.YES_OPTION) {
+            if (isConnected) {
+                btnStopServer.doClick();
+            }
+            System.exit(0);
+        }
+    }//GEN-LAST:event_formWindowClosing
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(BlackJackServer.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(BlackJackServer.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(BlackJackServer.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(BlackJackServer.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new BlackJackServer().setVisible(true);
+            }
+        });
     }
 
     /**
@@ -111,8 +313,8 @@ public class BlackJackServer {
     public void addPlayer(ConnectionThread socket, User user) {
         synchronized (this) {
             myQueue.add(new GameThread(socket, user));
-            System.out.println("queue size " + myQueue.size());
-            System.out.println("threads size " + threads.size());
+            addTextTolog("Queue size for the game " + myQueue.size());
+            addTextTolog("Threads size " + threads.size());
         }
 
     }
@@ -139,16 +341,16 @@ public class BlackJackServer {
             GameThread toRemove = new GameThread(connection, user);
             myQueue.remove(toRemove);
             threads.remove(connection);
-            System.out.println("queue size " + myQueue.size());
-            System.out.println("threads size " + threads.size());
+            addTextTolog("queue size " + myQueue.size());
+            addTextTolog("threads size " + threads.size());
         }
     }
 
     /**
-     * This method called when a player forced out of a game.
-     * it can be triggered if the player exit the game, or if the player forced
-     * out of the game because of a time-out read error (will occur if for 2
-     * minutes there's no player connected beside this player).
+     * This method called when a player forced out of a game. it can be
+     * triggered if the player exit the game, or if the player forced out of the
+     * game because of a time-out read error (will occur if for 2 minutes
+     * there's no player connected beside this player).
      *
      * @param user the user to remove from queue and thread;
      */
@@ -163,8 +365,9 @@ public class BlackJackServer {
             if (toRemove != null) {
                 myQueue.remove(toRemove);
                 threads.remove(toRemove.getConnectionThread());
-                System.out.println("queue size " + myQueue.size());
-                System.out.println("threads size " + threads.size());
+                addTextTolog("queue size " + myQueue.size());
+                addTextTolog("threads size " + threads.size());
+
             }
         }
     }
@@ -223,6 +426,7 @@ public class BlackJackServer {
             stillInGame = numOfPlayers;
             myQueue.clear();
             gameOn = true;
+            addTextTolog("Game of 3 Began");
             // this section sets playersId and starting the game
             setPlayersIdAndDeck();
 
@@ -264,7 +468,7 @@ public class BlackJackServer {
             for (GameThread c : queue) {
                 if (c.isDisconnected()) {
                     count--;
-                    System.out.println("Players left in the game " + count);
+                    addTextTolog("Players left in the game " + count);
                     gameOn = false;
                     toRemove.add(c);
                 }
@@ -298,7 +502,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
                 }
             }
@@ -324,6 +528,7 @@ public class BlackJackServer {
                     queue.remove(remove);
                     threads.remove(remove.getConnectionThread());
                 }
+                addTextTolog("Game of 3 END");
             }
         }
 
@@ -370,7 +575,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
                 }
             }
@@ -398,7 +603,7 @@ public class BlackJackServer {
                 } catch (IOException ex) {
                     Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                     clientDisconnected(c);
-                    System.out.println("queue size " + stillInGame);
+                    addTextTolog("queue size " + stillInGame);
                 } catch (ClassNotFoundException ex) {
                     Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -430,8 +635,6 @@ public class BlackJackServer {
                         deck = requestData.getDeck();
                         if (requestData.isBlackjack()) {
                             c.setBlackjack(true);
-//                            stillInGame--;
-//                            recived.setBlackjack(true);
                         }
                         allCards.add(recived);
 
@@ -443,7 +646,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
                 }
 
@@ -468,7 +671,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
 
                     cardsToSend.clear();
@@ -493,7 +696,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
                 }
             }
@@ -524,7 +727,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
 
                     try {
@@ -537,7 +740,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     } catch (ClassNotFoundException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -582,7 +785,7 @@ public class BlackJackServer {
                             } catch (IOException ex) {
                                 Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                                 clientDisconnected(curr);
-                                System.out.println("queue size " + stillInGame);
+                                addTextTolog("queue size " + stillInGame);
                             }
                         }
                     }
@@ -608,7 +811,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
                 }
             }
@@ -624,7 +827,7 @@ public class BlackJackServer {
          * @param c the client who disconnected from the game.
          */
         public void clientDisconnected(GameThread c) {
-            System.out.println(c.getConnectionThread().getId() + c.getConnectionThread().getName() + " Has disconected");
+            addTextTolog(c.getConnectionThread().getId() + c.getConnectionThread().getName() + " Has disconected");
             if (!c.isDisconnected()) {
                 stillInGame--;
                 c.setDisconnected(true);
@@ -697,6 +900,7 @@ public class BlackJackServer {
                 queue = new ArrayList<>(myQueue);
                 myQueue.clear();
             }
+            addTextTolog("Game Of 2 Began");
             numOfPlayers = queue.size();
             stillInGame = numOfPlayers;
             gameOn = true;
@@ -765,7 +969,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
                 }
             }
@@ -783,7 +987,7 @@ public class BlackJackServer {
             for (GameThread c : queue) {
                 if (c.isDisconnected()) {
                     count--;
-                    System.out.println("Players left in the game " + count);
+                    addTextTolog("Players left in the game " + count);
                     gameOn = false;
                     toRemove.add(c);
                 }
@@ -812,7 +1016,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
                 }
             }
@@ -827,6 +1031,7 @@ public class BlackJackServer {
                     queue.remove(remove);
                     threads.remove(remove.getConnectionThread());
                 }
+                addTextTolog("Game of 2 End");
             }
         }
 
@@ -852,7 +1057,7 @@ public class BlackJackServer {
                 } catch (IOException ex) {
                     Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                     clientDisconnected(c);
-                    System.out.println("queue size " + stillInGame);
+                    addTextTolog("queue size " + stillInGame);
                 } catch (ClassNotFoundException ex) {
                     Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -884,8 +1089,6 @@ public class BlackJackServer {
                         deck = requestData.getDeck();
                         if (requestData.isBlackjack()) {
                             c.setBlackjack(true);
-//                            stillInGame--;
-//                            recived.setBlackjack(true);
                         }
                         allCards.add(recived);
 
@@ -897,7 +1100,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
                 }
 
@@ -922,7 +1125,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
 
                     cardsToSend.clear();
@@ -947,7 +1150,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
                 }
             }
@@ -977,7 +1180,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
 
                     try {
@@ -985,7 +1188,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     } catch (ClassNotFoundException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -1030,7 +1233,7 @@ public class BlackJackServer {
                             } catch (IOException ex) {
                                 Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                                 clientDisconnected(curr);
-                                System.out.println("queue size " + stillInGame);
+                                addTextTolog("queue size " + stillInGame);
                             }
                         }
                     }
@@ -1056,7 +1259,7 @@ public class BlackJackServer {
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
-                        System.out.println("queue size " + stillInGame);
+                        addTextTolog("queue size " + stillInGame);
                     }
                 }
             }
@@ -1082,4 +1285,13 @@ public class BlackJackServer {
 
     }
 
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnStartServer;
+    private javax.swing.JButton btnStopServer;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextAreaLog;
+    // End of variables declaration//GEN-END:variables
 }
