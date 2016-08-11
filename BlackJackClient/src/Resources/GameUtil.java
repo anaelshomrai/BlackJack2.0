@@ -14,12 +14,19 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 /**
- *
+ * This class contains some methods that the application use in different classes.
+ * WinPot - A sound plays when a winning pop-up frame created.
+ * playShuffle - A sound plays when cards are dealt in the game.
+ * setIcon - an icon is set to the specific frame.
+ * 
  * @author ANI
  */
 public class GameUtil {
 
-    public static void WinPot() {
+    /**
+     * When calling this method a short sound is played.
+     */
+    public static void winPot() {
         AudioInputStream audioInputStream = null;
 
         Clip clip = null;
@@ -50,6 +57,9 @@ public class GameUtil {
         clip.start();
     }
 
+    /**
+     * When calling this method a short sound is played.
+     */
     public static void playShuffle() {
         AudioInputStream audioInputStream = null;
 
@@ -80,6 +90,11 @@ public class GameUtil {
         clip.start();
     }
 
+    /**
+     * This method sets the icon of the received frame.
+     * 
+     * @param frame the frame
+     */
     public static void setIcon(JFrame frame) {
         String file = "./src/img/card-symbols_b.png";
         ImageIcon img = new ImageIcon(file);

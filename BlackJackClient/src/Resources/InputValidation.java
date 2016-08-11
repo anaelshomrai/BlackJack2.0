@@ -10,13 +10,25 @@ import java.util.ResourceBundle;
  */
 public class InputValidation {
     
+    /**
+     *
+     */
     public static ResourceBundle localizedResourceBundle;
 
+    /**
+     *
+     * @param localizedResourceBundle
+     */
     public static void setLocalizedResourceBundle
         (ResourceBundle localizedResourceBundle) {
         InputValidation.localizedResourceBundle = localizedResourceBundle;
     }
     
+    /**
+     *
+     * @param firstName
+     * @return
+     */
     public static String checkFirstName(String firstName)
     {
         if (firstName.isEmpty())
@@ -27,7 +39,12 @@ public class InputValidation {
            return "";
     }
     
-        public static String checkLastName(String lastName)
+    /**
+     *
+     * @param lastName
+     * @return
+     */
+    public static String checkLastName(String lastName)
     {
         if (lastName.isEmpty())
             return LocalizationUtil.localizedResourceBundle.getString("Empty");
@@ -37,6 +54,11 @@ public class InputValidation {
            return "";
     }
 
+    /**
+     *
+     * @param password
+     * @return
+     */
     public static String checkPassword(String password)
     {
        if (password.length() < 6 || password.length() > 20) 

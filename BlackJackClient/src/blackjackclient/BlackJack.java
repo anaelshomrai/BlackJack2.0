@@ -1,21 +1,23 @@
 package blackjackclient;
 
 import Forms.WelcomeScreen;
-import static Resources.LocalizationUtil.changeOptionPane_iw;
-import java.awt.Dimension;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 /**
- *
- * @author ANI
+ * This is the entry point for the client side application, here we initialize
+ * the first screen.
+ * 
+ * @author Anael
  */
 public class BlackJack {
 
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");

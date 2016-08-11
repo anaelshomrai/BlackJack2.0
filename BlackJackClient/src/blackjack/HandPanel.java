@@ -17,6 +17,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 // Drawing Hands of cards to the screen.
+
+/**
+ *
+ * @author Anael
+ */
 public class HandPanel extends JPanel implements Serializable{
 
     private List<Hand> targetHands;
@@ -36,18 +41,29 @@ public class HandPanel extends JPanel implements Serializable{
     }
 
     // only one hand
+
+    /**
+     *
+     * @param targetHand
+     */
     public HandPanel(Hand targetHand) {
         this.targetHands = new ArrayList<>();
         this.targetHands.add(targetHand);
     }
 
     // More than one hand
+
+    /**
+     *
+     * @param targetHands
+     */
     public HandPanel(List<Hand> targetHands) {
         this.targetHands = targetHands;
     }
 
     /**
      * Paint each card in the hand.
+     * @param g
      */
     public void paintComponent(Graphics g) {
         for (int y = 0; y < targetHands.size(); y++) {

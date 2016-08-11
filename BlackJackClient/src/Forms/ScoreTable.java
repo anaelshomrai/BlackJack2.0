@@ -9,11 +9,6 @@ import blackjackclient.ConnectionUtil;
 import java.awt.Color;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,11 +16,11 @@ import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
+ * This class present a frame with a list of users with their score and balance.
  *
  * @author ANI
  */
@@ -35,26 +30,39 @@ public class ScoreTable extends javax.swing.JFrame {
     User player = null;
     String language = "";
     DefaultTableModel dtm;
-    List<Score> scores = new ArrayList<Score>();
+    List<Score> scores = new ArrayList<>();
     boolean serverUp = true;
 
     /**
-     * Creates new form ScoreTable
+     * This constructor initializes a scoreTable frame.
+     *
      */
     public ScoreTable() {
         initComponents();
         initTable();
-        transparentButtons();
     }
-    // Initialize ScoreTable with the previous form, and the current player
 
+    /**
+     * This constructor initializes a scoreTable frame. and sets the player and
+     * the previous frame.
+     *
+     * @param previous the previous form
+     * @param player the user
+     */
     public ScoreTable(UserHome previous, User player) {
         this();
         this.previous = previous;
         this.player = player;
     }
-    // If a language is choosen
 
+    /**
+     * This constructor initializes a scoreTable frame. and sets the player, the
+     * previous frame and Hebrew as a language.
+     *
+     * @param previous the previous user
+     * @param player the user
+     * @param lang the language selected
+     */
     public ScoreTable(UserHome previous, User player, String lang) {
         initComponents();
         this.previous = previous;
@@ -66,10 +74,12 @@ public class ScoreTable extends javax.swing.JFrame {
             LocalizationUtil.localizedResourceBundle = LocalizationUtil.getBundleScoreTableIW();
             updateCaption();
         }
-        transparentButtons();
     }
 
-    // if hebrew was choosen
+    /**
+     * This Hebrew selected we change the columns name to Hebrew.
+     *
+     */
     private void updateCaption() {
         Vector columnsName = new Vector();
         columnsName.addElement(LocalizationUtil.localizedResourceBundle
@@ -88,21 +98,10 @@ public class ScoreTable extends javax.swing.JFrame {
 
     }
 
-    private void transparentButtons() {
-        jrdbWins.setOpaque(false);
-        jrdbWins.setContentAreaFilled(false);
-        jrdbWins.setBorderPainted(false);
-
-        ImageIcon im = new ImageIcon("./src/img/radioButton.png");
-        jrdbWins.setIcon(im);
-        jrdbBalance.setIcon(im);
-
-        jrdbBalance.setOpaque(false);
-        jrdbBalance.setContentAreaFilled(false);
-        jrdbBalance.setBorderPainted(false);
-    }
-
-    // intialize table by importing data from the database
+    /**
+     * Initialize the table by opening a connection and get from the server the
+     * information.
+     */
     private void initTable() {
         try {
             GameUtil.setIcon(this);
@@ -123,7 +122,7 @@ public class ScoreTable extends javax.swing.JFrame {
             if (!serverUp) {
                 this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
             }
-
+            myConnection.setStatus(1);
             myConnection.getAllScores();
 
             ConnectionData dataResponse
@@ -172,6 +171,7 @@ public class ScoreTable extends javax.swing.JFrame {
         setTitle("BlackJack ANI");
         setForeground(java.awt.Color.black);
         setName("highScoreFrame"); // NOI18N
+        setPreferredSize(new java.awt.Dimension(700, 565));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -251,7 +251,10 @@ public class ScoreTable extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
+    /**
+     * When the user try to exit the application this method is triggered. the
+     * user must confirm the exit, then the we exit the application.
+     */
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         if (!serverUp) {
             if (this.language.equals("iw")) {
@@ -280,12 +283,17 @@ public class ScoreTable extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_formWindowClosing
-
+    /**
+     * if back is clicked we goes back to the previous frame.
+     */
     private void labBackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labBackMouseClicked
         this.dispose();
         previous.setVisible(true);
     }//GEN-LAST:event_labBackMouseClicked
-
+    /**
+     * if this radio button is selected we sort the table data according to
+     * the balance. the user who has the greater balance will be first.
+     */
     private void jrdbBalanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jrdbBalanceActionPerformed
         // Sorting list by balance
         clearTable();
@@ -299,7 +307,10 @@ public class ScoreTable extends javax.swing.JFrame {
         }
         scoreTable.setModel(dtm);
     }//GEN-LAST:event_jrdbBalanceActionPerformed
-
+    /**
+     * if this radio button is selected we sort the table data according to
+     * the winnings. the user who has the most winnings will be first.
+     */
     private void jrdbWinsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jrdbWinsActionPerformed
         clearTable();
         Collections.sort(scores, new Comparator<Score>() {
@@ -318,7 +329,9 @@ public class ScoreTable extends javax.swing.JFrame {
         }
         scoreTable.setModel(dtm);
     }//GEN-LAST:event_jrdbWinsActionPerformed
-
+    /**
+     * Clears the table.
+     */
     private void clearTable() {
         DefaultTableModel model = (DefaultTableModel) scoreTable.getModel();
 

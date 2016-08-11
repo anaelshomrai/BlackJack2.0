@@ -8,25 +8,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is used by the server to set the cards dealt each round,
- * the user who play, thread id, and the deck of cards after pulling his cards.
+ * This class is used by the server to set the cards dealt each round, the user
+ * who play, thread id, and the deck of cards after pulling his cards.
+ *
  * @author ANI
  */
-public class CardsDealt implements Serializable{
+public class CardsDealt implements Serializable {
 
-    /** The user */
+    /**
+     * The user
+     */
     private User user;
-    /** The thread id of the user */
+    /**
+     * The thread id of the user
+     */
     private long id;
-    /** The cards list of the user */
+    /**
+     * The cards list of the user
+     */
     private List<Card> cards = new ArrayList<>();
-    /** The deck of the user, after pulling his cards. */
+    /**
+     * The deck of the user, after pulling his cards.
+     */
     private Deck deck;
-    
+
     private boolean blackjack = false;
 
-    /** Default constructor. Initializes an empty cardsDealt object. */
-    public CardsDealt() { }
+    /**
+     * Default constructor. Initializes an empty cardsDealt object.
+     */
+    public CardsDealt() {
+    }
 
     /**
      *
@@ -34,7 +46,7 @@ public class CardsDealt implements Serializable{
      * @param id the id of the user thread
      * @param cards the cards of the user
      */
-    public CardsDealt(User user,int id, List<Card> cards) {
+    public CardsDealt(User user, int id, List<Card> cards) {
         setUser(user);
         setId(id);
         setCards(cards);
@@ -42,7 +54,7 @@ public class CardsDealt implements Serializable{
 
     /**
      * Returns the user
-     * 
+     *
      * @return the user
      */
     public User getUser() {
@@ -51,7 +63,7 @@ public class CardsDealt implements Serializable{
 
     /**
      * Set the user with the specified user
-     * 
+     *
      * @param user set the user
      */
     public void setUser(User user) {
@@ -60,7 +72,7 @@ public class CardsDealt implements Serializable{
 
     /**
      * Returns the thread id
-     * 
+     *
      * @return the id of the thread
      */
     public long getId() {
@@ -69,7 +81,7 @@ public class CardsDealt implements Serializable{
 
     /**
      * Sets the thread id
-     * 
+     *
      * @param id set the thread id
      */
     public void setId(long id) {
@@ -78,7 +90,7 @@ public class CardsDealt implements Serializable{
 
     /**
      * Returns a list of cards
-     * 
+     *
      * @return list of cards
      * @see blackjack.Card
      */
@@ -88,25 +100,25 @@ public class CardsDealt implements Serializable{
 
     /**
      * Sets the cards list
-     * 
+     *
      * @param cards set the cards list
      */
     public void setCards(List<Card> cards) {
         this.cards = cards;
     }
-    
+
     /**
      * Appends the card to the end of the cards list
-     * 
+     *
      * @param card cards to be appended to card list
      */
-    public void addCard(Card card){
+    public void addCard(Card card) {
         this.cards.add(card);
     }
 
     /**
      * Returns the deck
-     * 
+     *
      * @return deck the deck
      */
     public Deck getDeck() {
@@ -115,21 +127,29 @@ public class CardsDealt implements Serializable{
 
     /**
      * Sets the deck
-     * 
+     *
      * @param deck set the deck
      */
     public void setDeck(Deck deck) {
         this.deck = deck;
     }
 
+    /**
+     * Return if this current hand has blackjack
+     * 
+     * @return blackjack is this hand has blackjack
+     */
     public boolean isBlackjack() {
         return blackjack;
     }
 
+    /**
+     * Sets if this current hand has blackjack
+     *
+     * @param blackjack is this hand has blackjack
+     */
     public void setBlackjack(boolean blackjack) {
         this.blackjack = blackjack;
     }
-    
-    
 
 }

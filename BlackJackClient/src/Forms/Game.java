@@ -9,7 +9,6 @@ import blackjack.Deck;
 import blackjack.Hand;
 import blackjack.HandPanel;
 import blackjack.Utils;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -20,7 +19,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -29,64 +27,179 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.Timer;
-import javax.swing.border.Border;
 
 /**
+ * This class is the frame shown when a user plays as a guest or verses the
+ * dealer. this class is responsible for managing the game throughout the stages
+ * of the game. this game consist the dealer and the player only. possible game
+ * state: Betting : Player places bet. Dealing: New cards are dealt. Hitting:
+ * Player is prompted to either hit, stay, double down or split. Dealer: Flip
+ * hidden card and draw until the total value of the dealers hand is equal to 17
+ * or more. Resolve: Flips the dealers cards, dealer hits til 17+, the winner is
+ * revealed.
  *
  * @author ANI
  */
 public class Game implements ActionListener {
 
+    /**
+     * constant action command for bet button.
+     */
+    private static final String BET = "BET";
+    /**
+     * constant action command for hit button.
+     */
+    private static final String HIT = "HIT";
+    /**
+     * constant action command for stay button.
+     */
+    private static final String STAY = "STAY";
+    /**
+     * constant action command for double down button.
+     */
+    private static final String DOUBLE_DOWN = "DOUBLE_DOWN";
+    /**
+     * constant action command for split button.
+     */
+    private static final String SPLIT = "SPLIT";
+    /**
+     * constant action command for sound button.
+     */
+    private static final String SOUND = "SOUND";
+
     //
     // GUI Components
     //
-    JFrame frame = new JFrame("Blackjack");
+    /**
+     * the frame of the game.
+     */
+    private JFrame frame = new JFrame("Blackjack");
+    /**
+     * the button for hit another card.
+     */
     private JButton hitButton;
+    /**
+     * the button for stay (don't take another card and ends the turn).
+     */
     private JButton stayButton;
+    /**
+     * the button for double down, hit one more card and double the bet.
+     */
     private JButton doubleDownButton;
+    /**
+     * the button for split, will enable if the hand can be split (two first
+     * card has the same value).
+     */
     private JButton splitButton;
+    /**
+     * the label in the info panel, will show the direction for that the player
+     * needs to do at every stage.
+     */
     private JLabel systemMessage;
+    /**
+     * the textField for taking the input of a player bet.
+     */
     private JTextField betAmountTextField;
+    /**
+     * the button for bet, at each start of a game.
+     */
     private JButton betButton;
-    JPanel playersCardsPanel;
-    JPanel dealersCardsPanel;
-    JLabel playerCashLabel;
-    JLabel playerWinsLabel;
-    JLabel dealerWinsLabel;
-    JLabel status;
-    private static final String SOUND = "SOUND";
-    private boolean playSounds = true;
+    /**
+     * the panel for the player cards.
+     */
+    private JPanel playersCardsPanel;
+    /**
+     * the panel for the dealer cards.
+     */
+    private JPanel dealersCardsPanel;
+    /**
+     * the label for the avaliable cash of a player.
+     */
+    private JLabel playerCashLabel;
+    /**
+     * the label for the amount of players winning.
+     */
+    private JLabel playerWinsLabel;
+    /**
+     * the button for enable/disable the sound.
+     */
     private JButton sound;
 
+    /**
+     * represent if sounds are disabled/enabled. default is play sound.
+     */
+    private boolean playSounds = true;
+
     //
-    // Dealer Variables
+    // Variables
     //
+    /**
+     * the state of the game.
+     */
     private Utils.GameState state = Utils.GameState.BETTING;
+    /**
+     * the next state of the game.
+     */
     private Utils.GameState nextState;
+    /**
+     * dealer hand, containing the cards.
+     */
     private Hand dealerHand = new Hand();
+    /**
+     * player current playing hand, containing the cards.
+     */
     private Hand currentHand;
+    /**
+     * current index of the playing hand (in case we have a split hand).
+     */
     private int currentHandIndex = 0;
-    private List<Hand> playerHands = new ArrayList<Hand>();
+    /**
+     * current index of the playing hand (in case we have a split hand).
+     */
+    private List<Hand> playerHands = new ArrayList<>();
+    /**
+     * the deck of cards.
+     */
     private Deck deck;
+    /**
+     * the player cash if he plays as a guest.
+     */
     private int playerCash = 10000;
+    /**
+     * minimum bet for starting a game.
+     */
     private static int MIN_BET = 5;
+    /**
+     * maximum bet for starting a game.
+     */
     private static int MAX_BET = 500;
+    /**
+     * number of players winning.
+     */
     private int playerWins = 0;
-    private int dealerWins = 0;
+    /**
+     * the id of the player.
+     */
     private int playerId = 0;
+    /**
+     * the previous form if the user logged in and play verses the dealer.
+     */
     private UserHome previous = null;
-    String language = "";
+    /**
+     * the language chosen.
+     */
+    private String language = "";
+    /**
+     * the previous form if the user plays as a guest.
+     */
     private WelcomeScreen guestPrev = null;
+    /**
+     * the user logged in.
+     */
     private User user;
 
     /**
-     * Each possible game state.
-     *
-     * Betting: Player places bet. Dealing: New cards are dealt. Hitting: Player
-     * is prompted to either hit, stay, double down or split. Dealer: Flip
-     * hidden card and draw until the total value of the dealers hand is equal
-     * to 17 or more. Resolve: Flips the dealers cards, dealer hits til 17+,
-     * points are tallied and payouts given.
+     * Default constructor Initialize a Game form with a new deck.
      *
      */
     public Game() {
@@ -94,22 +207,47 @@ public class Game implements ActionListener {
         playerHands.add(new Hand()); // Default Hand.              
     }
 
+    /**
+     * Constructor Initialize a Game form with the userHome as previous form.
+     *
+     * @param prev the previous form
+     */
     public Game(UserHome prev) {
         this();
         previous = prev;
     }
 
+    /**
+     * Constructor Initialize a Game form with the welcomeScreen as previous
+     * form.
+     *
+     * @param prev the previous form
+     */
     public Game(WelcomeScreen prev) {
         this();
         guestPrev = prev;
     }
 
+    /**
+     * Constructor Initialize a Game form with the welcomeScreen as previous
+     * form.
+     *
+     * @param prev the previous form
+     * @param lang language of the game form
+     */
     public Game(WelcomeScreen prev, String lang) {
         this(prev);
         this.language = lang;
 
     }
 
+    /**
+     * Constructor Initialize a Game form with the UserHome as previous form,
+     * and sets the user.
+     *
+     * @param u the user
+     * @param w the previous userHome
+     */
     public Game(User u, UserHome w) {
         this(w);
         user = u;
@@ -118,6 +256,14 @@ public class Game implements ActionListener {
         this.playerWins = u.getWins();
     }
 
+    /**
+     * Constructor Initialize a Game form with the UserHome as previous form,
+     * and sets the user.
+     *
+     * @param u the user
+     * @param w the previous userHome
+     * @param lang language of the game form
+     */
     public Game(User u, UserHome w, String lang) {
         this(w);
         user = u;
@@ -128,7 +274,7 @@ public class Game implements ActionListener {
     }
 
     /**
-     * Initialize GUI components.
+     * This method Initialize GUI components.
      */
     public void initializeGUI() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -172,7 +318,7 @@ public class Game implements ActionListener {
         betPanel.setOpaque(false);
 
         betAmountTextField = new JTextField(5);
-        betButton = createButton("Bet", "bet");
+        betButton = createButton("Bet", BET);
 
         betPanel.add(betAmountTextField);
         betPanel.add(betButton);
@@ -185,16 +331,16 @@ public class Game implements ActionListener {
         JPanel actionPanel = new JPanel();
         actionPanel.setOpaque(false);
 
-        hitButton = createButton("Hit", "hit");
+        hitButton = createButton("Hit", HIT);
         actionPanel.add(hitButton);
 
-        stayButton = createButton("Stay", "stay");
+        stayButton = createButton("Stay", STAY);
         actionPanel.add(stayButton);
 
-        doubleDownButton = createButton("Double Down", "double_down");
+        doubleDownButton = createButton("Double Down", DOUBLE_DOWN);
         actionPanel.add(doubleDownButton);
 
-        splitButton = createButton("Split", "split");
+        splitButton = createButton("Split", SPLIT);
         actionPanel.add(splitButton);
 
         boardPanel.add(actionPanel, createConstraints(1, 6, 4, 2, 0, 0, GridBagConstraints.HORIZONTAL, true));
@@ -209,11 +355,6 @@ public class Game implements ActionListener {
         playerWinsLabel = new JLabel("Wins: 0");
         infoPanel.add(playerWinsLabel);
 
-        dealerWinsLabel = new JLabel("Loses: 0");
-        infoPanel.add(dealerWinsLabel);
-
-        status = new JLabel("Sum of cards in hand: 0");
-        infoPanel.add(status);
         boardPanel.add(infoPanel, createConstraints(5, 6, 1, 2, 0, 0, GridBagConstraints.BOTH, true));
 
         //
@@ -250,7 +391,7 @@ public class Game implements ActionListener {
         //
         Timer t = new Timer(40, this);
         t.start();
-
+        
         frame.pack();
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
@@ -279,12 +420,18 @@ public class Game implements ActionListener {
         }
     }
 
+    /**
+     * changing the form to Hebrew
+     */
     public void changeToHebrew() {
         LocalizationUtil.localizedResourceBundle = LocalizationUtil.getBundleGameIW();
         updateCaptions();
         LocalizationUtil.changeOptionPane_iw();
     }
 
+    /**
+     * changing all the buttons to Hebrew
+     */
     public void updateCaptions() {
         betButton.setText(LocalizationUtil.localizedResourceBundle.getString("betButton"));
         hitButton.setText(LocalizationUtil.localizedResourceBundle.getString("hitButton"));
@@ -299,15 +446,6 @@ public class Game implements ActionListener {
     private void update() {
         state = nextState; // Update our state, first.
         currentHand = playerHands.get(currentHandIndex);
-        int total = 0;
-        for (Hand c : playerHands) {
-            total = c.getValue();
-        }
-        if (this.language.equals("iw")) {
-            status.setText("סהכ: " + total);
-        } else {
-            status.setText("Sum of cards: " + total);
-        }
 
         switch (state) {
             case BETTING:
@@ -391,7 +529,7 @@ public class Game implements ActionListener {
                     dealerHand.getCard(1).reveal();
                 }
 
-                dispenseWinnings();
+                determineWinner();
 
                 // Start Over
                 updateState(Utils.GameState.BETTING);
@@ -404,11 +542,9 @@ public class Game implements ActionListener {
 
             playerCashLabel.setText("קופה: $" + playerCash);
             playerWinsLabel.setText("ניצחונות: " + playerWins);
-            dealerWinsLabel.setText("הפסדים: " + dealerWins);
         } else {
             playerCashLabel.setText("Cash: $" + playerCash);
             playerWinsLabel.setText("Wins: " + playerWins);
-            dealerWinsLabel.setText("Loses: " + dealerWins);
         }
         frame.repaint();
     }
@@ -457,7 +593,7 @@ public class Game implements ActionListener {
     /**
      * Determines the winner of each hand and dispenses the winnings.
      */
-    private void dispenseWinnings() {
+    private void determineWinner() {
         //
         // For each hand the player has, determine
         // a winner and give the appropriate payout.
@@ -471,7 +607,6 @@ public class Game implements ActionListener {
                     } else {
                         systemMessage.setText("Dealer wins this hand...");
                     }
-                    dealerWins++;
                     break;
                 case 1: // Player Win
                     if (this.language.equals("iw")) {
@@ -506,7 +641,9 @@ public class Game implements ActionListener {
 
     /**
      * Draw one card from the deck, if it's null reshuffle the deck, otherwise
-     * insert it into target hand.
+     * insert it into target hand. this method will be used for the second card
+     * of the dealer because the card needs to be hidden. for all the other
+     * cards the second method will be used with the faceUp as true.
      */
     private void dealCard(Hand hand, boolean faceUp) {
         Card newCard = deck.drawCard(faceUp);
@@ -520,20 +657,25 @@ public class Game implements ActionListener {
             deck.reshuffle();
             dealCard(hand, faceUp);
         } else {
-            hand.AddCard(newCard);
+            hand.addCard(newCard);
         }
     }
 
+    /**
+     * @see #dealCard(blackjack.Hand, boolean)
+     */
     private void dealCard(Hand hand) {
         dealCard(hand, true);
     }
 
     /**
      * Handles GUI button events.
+     *
+     * @param arg0 the event
      */
     @Override
     public void actionPerformed(ActionEvent arg0) {
-        if ("bet".equals(arg0.getActionCommand())) {
+        if (BET.equals(arg0.getActionCommand())) {
             //
             // Make sure the player has enough cash, is within
             // the bet domain of this table, set-up hands, then 
@@ -575,11 +717,11 @@ public class Game implements ActionListener {
                 }
                 return;
             }
-        } else if ("hit".equals(arg0.getActionCommand())) {
+        } else if (HIT.equals(arg0.getActionCommand())) {
             //
             // Deal one card to current hand, check for bust
             // or blackjack, if not, allow the player to keep hitting
-            // otherwise, go to DEALER_AI state or next hand.
+            // otherwise, go to DEALER state or next hand.
             //
             GameUtil.playShuffle();
             dealCard(currentHand);
@@ -591,7 +733,7 @@ public class Game implements ActionListener {
                 currentHandIndex++;
             }
 
-        } else if ("stay".equals(arg0.getActionCommand())) {
+        } else if (STAY.equals(arg0.getActionCommand())) {
             //
             // Go to DEALER_AI state or next hand.
             //
@@ -600,10 +742,10 @@ public class Game implements ActionListener {
             } else {
                 currentHandIndex++;
             }
-        } else if ("double_down".equals(arg0.getActionCommand())) {
+        } else if (DOUBLE_DOWN.equals(arg0.getActionCommand())) {
             //
             // Deduct the hand's bet amount from player's available cash,
-            // deal one card to the current hand and go to the DEALER_AI
+            // deal one card to the current hand and go to the DEALER
             // state or next hand.
             //
             playerCash -= currentHand.getBet();
@@ -616,7 +758,7 @@ public class Game implements ActionListener {
                 currentHandIndex++;
             }
 
-        } else if ("split".equals(arg0.getActionCommand())) {
+        } else if (SPLIT.equals(arg0.getActionCommand())) {
             //
             // Split hand, deduct the new hand's bet
             // amount from the players cash and push

@@ -4,19 +4,11 @@ import DataUtil.ConnectionData;
 import Resources.GameUtil;
 import Resources.LocalizationUtil;
 import Users.User;
-//import DataBase.DB;
-//import DataBase.DBUtils;
 import Resources.RoundedBorder;
 import Users.Admin;
 import blackjackclient.ConnectionUtil;
 import java.awt.Color;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -25,6 +17,9 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
+ * This class present a table with all users. only admin can see this form, and
+ * preform actions on regular users, such as remove their account or promote
+ * them to be admins.
  *
  * @author ANI
  */
@@ -35,20 +30,35 @@ public class ListOfUsers extends javax.swing.JFrame {
     private static int id;
     private static String userName = null;
     AdminHome previous = null;
+    Admin admin;
 
     /**
-     * Creates new form ListOfUsers
+     * Initialize a new ListOfUsers form, with the previous forma and the admin
+     * who opened this form.
+     *
+     * @param previous the previous form
+     * @param admin the admin
      */
-    public ListOfUsers(AdminHome previous) {
+    public ListOfUsers(AdminHome previous, Admin admin) {
         initComponents();
         this.previous = previous;
+        this.admin = admin;
         initTable();
-        transformButtons();
+
     }
 
-    public ListOfUsers(AdminHome previous, String lang) {
+    /**
+     * Initialize a new ListOfUsers form, with the previous form, the admin who
+     * opened this form and the language selected.
+     *
+     * @param previous the previous form
+     * @param admin the admin
+     * @param lang the language selected
+     */
+    public ListOfUsers(AdminHome previous, Admin admin, String lang) {
         initComponents();
         this.previous = previous;
+        this.admin = admin;
         initTable();
         if (lang.equals("iw")) {
             LocalizationUtil.changeOptionPane_iw();
@@ -57,21 +67,11 @@ public class ListOfUsers extends javax.swing.JFrame {
                     = LocalizationUtil.getBundleListOfUsersIW();
             updateCaption();
         }
-        transformButtons();
     }
 
-    private void transformButtons() {
-        btnChangePermission.setOpaque(false);
-        btnChangePermission.setContentAreaFilled(false);
-        btnChangePermission.setBorder(new RoundedBorder(50));
-        btnChangePermission.setForeground(Color.BLACK);
-
-        btnRemoveUser.setOpaque(false);
-        btnRemoveUser.setContentAreaFilled(false);
-        btnRemoveUser.setBorder(new RoundedBorder(50));
-        btnRemoveUser.setForeground(Color.BLACK);
-    }
-
+    /**
+     * Update the text to Hebrew in case this is the chosen language.
+     */
     private void updateCaption() {
         Vector columnsName = new Vector();
         columnsName.addElement(LocalizationUtil.localizedResourceBundle
@@ -92,6 +92,10 @@ public class ListOfUsers extends javax.swing.JFrame {
         usersTable.removeColumn(usersTable.getColumnModel().getColumn(0));
     }
 
+    /**
+     * Initialize the table with the users details, by sending the server
+     * request to pull out from the database all the users.
+     */
     private void initTable() {
         jScrollPane1.setOpaque(false);
         jScrollPane1.getViewport().setOpaque(false);
@@ -116,7 +120,7 @@ public class ListOfUsers extends javax.swing.JFrame {
         try {
             ConnectionUtil myConnection = new ConnectionUtil();
             myConnection.openConnection();
-
+            myConnection.setStatus(1);
             myConnection.getAllUsers();
 
             ConnectionData dataResponse
@@ -215,7 +219,7 @@ public class ListOfUsers extends javax.swing.JFrame {
         jScrollPane1.setViewportView(usersTable);
 
         getContentPane().add(jScrollPane1);
-        jScrollPane1.setBounds(20, 50, 527, 440);
+        jScrollPane1.setBounds(20, 50, 510, 440);
 
         btnChangePermission.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         btnChangePermission.setText("Change Permission");
@@ -227,7 +231,7 @@ public class ListOfUsers extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnChangePermission);
-        btnChangePermission.setBounds(320, 10, 230, 33);
+        btnChangePermission.setBounds(280, 10, 230, 33);
 
         btnRemoveUser.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         btnRemoveUser.setText("Remove User");
@@ -239,7 +243,7 @@ public class ListOfUsers extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btnRemoveUser);
-        btnRemoveUser.setBounds(80, 10, 230, 33);
+        btnRemoveUser.setBounds(30, 10, 230, 33);
 
         labBack.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/back.png"))); // NOI18N
         labBack.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -258,7 +262,10 @@ public class ListOfUsers extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
+    /**
+     * This method saves the id of the clicked user. will be used to preform
+     * change permission and remove account.
+     */
     private void usersTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usersTableMouseClicked
         int selectedRow = usersTable.getSelectedRow();
         id = 0;
@@ -269,7 +276,10 @@ public class ListOfUsers extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_usersTableMouseClicked
 
-
+    /**
+     * With the id selected, we check the user is not an admin, and promote him
+     * to be an admin.
+     */
     private void btnChangePermissionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChangePermissionActionPerformed
         if (usersTable.getSelectedRow() != -1) {
             try {
@@ -277,7 +287,7 @@ public class ListOfUsers extends javax.swing.JFrame {
                 myConnection.openConnection();
 
                 myConnection.findUserById(id);
-                myConnection.setStatus(1);
+                myConnection.setStatus(0);
 
                 ConnectionData dataResponse
                         = (ConnectionData) myConnection.getOis().readObject();
@@ -310,11 +320,7 @@ public class ListOfUsers extends javax.swing.JFrame {
                                     JOptionPane.WARNING_MESSAGE);
                         }
                         if (option == JOptionPane.OK_OPTION) {
-
-                            myConnection.changePermission(id);
-                            myConnection.setStatus(0);
-
-                            initTable();
+                            admin.changePermission(u.getId());
                         }
 
                     }
@@ -331,14 +337,16 @@ public class ListOfUsers extends javax.swing.JFrame {
                     JOptionPane.INFORMATION_MESSAGE);
         }
     }//GEN-LAST:event_btnChangePermissionActionPerformed
-
+    /**
+     * With the id selected, we check the user is not an admin, and delete his
+     * account.
+     */
     private void btnRemoveUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveUserActionPerformed
         if (usersTable.getSelectedRow() != -1) {
             try {
                 ConnectionUtil myConnection = new ConnectionUtil();
                 myConnection.openConnection();
 
-                myConnection.setStatus(1);
                 myConnection.findUserById(id);
 
                 ConnectionData dataResponse
@@ -374,11 +382,9 @@ public class ListOfUsers extends javax.swing.JFrame {
                         }
                         if (option == JOptionPane.OK_OPTION) {
 
-                            myConnection.setStatus(0);
-                            myConnection.removeAccount(u);
+                            admin.removeAccount(u);
 
                             dtm.removeRow(usersTable.getSelectedRow());
-                            initTable();
                         }
                     }
                 }
@@ -399,7 +405,10 @@ public class ListOfUsers extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_btnRemoveUserActionPerformed
-
+    /**
+     * When the user try to exit the application this method is triggered. the
+     * user must confirm the exit, then the we exit the application.
+     */
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         int confirmed = JOptionPane.NO_OPTION;
         if (this.language.equals("iw")) {
@@ -414,7 +423,9 @@ public class ListOfUsers extends javax.swing.JFrame {
             System.exit(0);
         }
     }//GEN-LAST:event_formWindowClosing
-
+    /**
+     * if back is clicked we goes back to the previous frame.
+     */
     private void labBackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labBackMouseClicked
         this.dispose();
         previous.setVisible(true);

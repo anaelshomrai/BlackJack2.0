@@ -13,10 +13,18 @@ public class BoardPanel extends JPanel {
 
     private ImageIcon backgroundImage;
 
+    /**
+     *
+     * @param backgroundImage
+     */
     public BoardPanel(String backgroundImage) {
         this.backgroundImage = new ImageIcon(backgroundImage);
     }
 
+    /**
+     *
+     * @param g
+     */
     @Override
     public void paintComponent(Graphics g) {
         g.drawImage(backgroundImage.getImage(), 0, 0, null);

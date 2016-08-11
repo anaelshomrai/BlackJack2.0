@@ -106,6 +106,14 @@ public class Utils {
 
     /**
      * 5 game states avaliable in a game of blackjack.
+     * possible game state:
+     * Betting: Player places bet.
+     * Dealing: New cards are dealt.
+     * Hitting: Player is prompted to either hit, stay, double down or split.
+     * Dealer: Flip hidden card and draw until the total value of the dealers
+     * hand is equal to 17 or more.
+     * Resolve: Flips the dealers cards, dealer hits til 17+, the winner is revealed.
+     *
      */
     public enum GameState {
 

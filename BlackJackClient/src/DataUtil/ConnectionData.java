@@ -12,7 +12,7 @@ import java.util.List;
  * login, and all action regarding to his account and needed to be updated or be
  * checked against the database.
  *
- * @author Anael
+ * @author ANI
  */
 public class ConnectionData implements Serializable {
 
@@ -67,6 +67,11 @@ public class ConnectionData implements Serializable {
      * constant requestCode to update a user score
      */
     public static final int UPDATE_USER = 10;
+
+    /**
+     * constant requestCode activate when a player Forced out of the game
+     */
+    public static final int EXIT_GAME = 11;
 
     /**
      * constant requestCode to exit the application
@@ -181,7 +186,7 @@ public class ConnectionData implements Serializable {
 
     /**
      * Return the user when searching for a user by his id.
-     * 
+     *
      * @return the user
      */
     public User getUser() {
@@ -189,9 +194,9 @@ public class ConnectionData implements Serializable {
     }
 
     /**
-     * Sets the user when searching for a user by hid id.
-     * null - if the user wasn't found.
-     * 
+     * Sets the user when searching for a user by hid id. null - if the user
+     * wasn't found.
+     *
      * @param user the user
      */
     public void setUser(User user) {
@@ -200,7 +205,7 @@ public class ConnectionData implements Serializable {
 
     /**
      * Return the id of the user to search.
-     * 
+     *
      * @return the user id
      */
     public int getId() {
@@ -209,7 +214,7 @@ public class ConnectionData implements Serializable {
 
     /**
      * Sets the user id to search.
-     * 
+     *
      * @param id the user id
      */
     public void setId(int id) {
@@ -218,7 +223,7 @@ public class ConnectionData implements Serializable {
 
     /**
      * Returns a list of users. only avaliable for admin.
-     * 
+     *
      * @return list of users
      */
     public List<User> getUsers() {
@@ -227,7 +232,7 @@ public class ConnectionData implements Serializable {
 
     /**
      * Sets the user list after an admin request has been made.
-     * 
+     *
      * @param users the user list
      */
     public void setUsers(List<User> users) {
@@ -236,7 +241,7 @@ public class ConnectionData implements Serializable {
 
     /**
      * Returns the list of users score (number of winning, balance).
-     * 
+     *
      * @return list of users score
      */
     public List<Score> getScores() {
@@ -245,7 +250,7 @@ public class ConnectionData implements Serializable {
 
     /**
      * Sets the list of users score (number of winning, balance).
-     * 
+     *
      * @param scores list of users score
      */
     public void setScores(List<Score> scores) {
