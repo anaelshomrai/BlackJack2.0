@@ -102,7 +102,7 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
     /**
      * the frame of the game.
      */
-    private JFrame frame = new JFrame("Blackjack");
+    private JFrame frame = new JFrame();
     // labels   
     /**
      * list of labels containing the icons of player one cards.
@@ -613,9 +613,7 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
         frame.setPreferredSize(new Dimension(800, 725));
         frame.setResizable(false);
 
-        String file = "./src/img/card-symbols_bsmall.png";
-        ImageIcon img = new ImageIcon(file);
-        frame.setIconImage(img.getImage());
+        GameUtil.setIcon(frame);
         frame.setTitle("BlackJack ANI");
 
         //init dealer
@@ -711,9 +709,7 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
         frame.setPreferredSize(new Dimension(800, 725));
         frame.setResizable(false);
 
-        String file = "./src/img/card-symbols_bsmall.png";
-        ImageIcon img = new ImageIcon(file);
-        frame.setIconImage(img.getImage());
+        GameUtil.setIcon(frame);
         frame.setTitle("BlackJack ANI");
 
         //init dealer

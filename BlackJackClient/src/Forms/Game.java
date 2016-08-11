@@ -281,9 +281,7 @@ public class Game implements ActionListener {
         frame.setPreferredSize(new Dimension(800, 600));
         frame.setResizable(false);
 
-        String file = "./src/img/card-symbols_bsmall.png";
-        ImageIcon img = new ImageIcon(file);
-        frame.setIconImage(img.getImage());
+        GameUtil.setIcon(frame);
         frame.setTitle("BlackJack ANI");
 
         // initiliaze sound icon
