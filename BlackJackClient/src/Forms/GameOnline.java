@@ -16,12 +16,17 @@ import static blackjack.Utils.diamondsImages;
 import static blackjack.Utils.heartsImages;
 import static blackjack.Utils.spadesImages;
 import blackjackclient.ConnectionUtil;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -90,10 +95,6 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
      * constant action command for timer events.
      */
     private static final String TIMER = "TIMER";
-    /**
-     * constant action command for the bet amount text field.
-     */
-    private static final String BET_AMOUNT = "BET_AMOUNT";
 
     //
     // GUI Components
@@ -434,6 +435,7 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
         timer.setActionCommand(TIMER);
         Font timeFont = new Font("Courier", Font.BOLD, 12);
         timeLabel.setFont(timeFont);
+        timeLabel.setForeground(Color.darkGray);
     }
 
     /**
@@ -798,6 +800,7 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
         initTimer();
 
         systemMessage.setVerticalAlignment(CENTER);
+        systemMessage.setFont(new java.awt.Font("Arial", 1, 13));
         infoPanel.setLayout(new java.awt.GridBagLayout());
         infoPanel.setOpaque(true);
 
@@ -821,9 +824,11 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
         statusPanel.setOpaque(true);
 
         cashLabel.setText("Cash :" + playerCash);
+        cashLabel.setFont(new java.awt.Font("Arial", 1, 14));
         statusPanel.add(cashLabel);
 
         winsLabel.setText("Wins:" + playerWins);
+        winsLabel.setFont(new java.awt.Font("Arial", 1, 14));
         statusPanel.add(winsLabel);
 
         frame.add(statusPanel);
@@ -857,19 +862,23 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
         splitButton.addActionListener(this);
         splitButton.setEnabled(false);
 
-        actionPanel.setLayout(new java.awt.GridLayout());
+        actionPanel.setLayout(new GridLayout());
         actionPanel.setOpaque(false);
 
         hitButton.setText("Hit");
+        hitButton.setFont(new java.awt.Font("Arial", 1, 12));
         actionPanel.add(hitButton);
 
         stayButton.setText("Stay");
+        stayButton.setFont(new java.awt.Font("Arial", 1, 12));
         actionPanel.add(stayButton);
 
         doubleDownButton.setText("Double Down");
+        doubleDownButton.setFont(new java.awt.Font("Arial", 1, 12));
         actionPanel.add(doubleDownButton);
 
         splitButton.setText("Split");
+        splitButton.setFont(new java.awt.Font("Arial", 1, 12));
         actionPanel.add(splitButton);
 
         frame.add(actionPanel);
@@ -894,10 +903,16 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
         betPanel.setLayout(new java.awt.GridLayout());
 
         betAmountTextField.setText("Amount");
-        betAmountTextField.setActionCommand(BET_AMOUNT);
+        betAmountTextField.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                betAmountTextField.setText("");
+            }
+        });
         betPanel.add(betAmountTextField);
 
         betButton.setText("Bet");
+        betButton.setFont(new java.awt.Font("Arial", 1, 12));
         betPanel.add(betButton);
 
         frame.add(betPanel);
@@ -1596,7 +1611,6 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
                         timeLabel.setText(" Time Left : " + 0);
                     }
                     timer.stop();
-                    nextTurn();
                 } else {
                     time--;
                     if (this.language.equals("iw")) {
@@ -1606,9 +1620,6 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
                     }
                     frame.repaint();
                 }
-                break;
-            case BET_AMOUNT:
-                betAmountTextField.setText("");
                 break;
             default:
                 break;

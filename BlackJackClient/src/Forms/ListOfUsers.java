@@ -4,10 +4,10 @@ import DataUtil.ConnectionData;
 import Resources.GameUtil;
 import Resources.LocalizationUtil;
 import Users.User;
-import Resources.RoundedBorder;
 import Users.Admin;
 import blackjackclient.ConnectionUtil;
 import java.awt.Color;
+import java.awt.Font;
 import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
@@ -160,6 +160,7 @@ public class ListOfUsers extends javax.swing.JFrame {
         usersTable.getTableHeader()
                 .setReorderingAllowed(false);
         usersTable.removeColumn(usersTable.getColumnModel().getColumn(0));
+        usersTable.getTableHeader().setFont(new Font("Ariel", Font.ITALIC, 12));
 
     }
 
@@ -253,7 +254,7 @@ public class ListOfUsers extends javax.swing.JFrame {
             }
         });
         getContentPane().add(labBack);
-        labBack.setBounds(550, 420, 70, 70);
+        labBack.setBounds(540, 420, 70, 70);
 
         labBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/21.jpg"))); // NOI18N
         getContentPane().add(labBackground);

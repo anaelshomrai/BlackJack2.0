@@ -321,7 +321,7 @@ public class Game implements ActionListener {
         betButton = createButton("Bet", BET);
 
         betPanel.add(betAmountTextField);
-        betPanel.add(betButton);
+        betPanel.add(betButton);        
 
         boardPanel.add(betPanel, createConstraints(0, 6, 1, 2, 0, 0, GridBagConstraints.HORIZONTAL, true));
 
@@ -349,13 +349,15 @@ public class Game implements ActionListener {
         // Initialize Info Panel
         //
         JPanel infoPanel = new JPanel();
-        playerCashLabel = new JLabel("Player Cash: $" + Integer.toString(playerCash));
+        playerCashLabel = new JLabel(" Player Cash: $ " + Integer.toString(playerCash));
+        playerCashLabel.setFont(new java.awt.Font("Arial", 1, 12));
         infoPanel.add(playerCashLabel);
 
-        playerWinsLabel = new JLabel("Wins: 0");
+        playerWinsLabel = new JLabel(" Wins: 0 ");
+        playerWinsLabel.setFont(new java.awt.Font("Arial", 1, 12));
         infoPanel.add(playerWinsLabel);
 
-        boardPanel.add(infoPanel, createConstraints(5, 6, 1, 2, 0, 0, GridBagConstraints.BOTH, true));
+        boardPanel.add(infoPanel, createConstraints(5, 6, 1, 2, 0, 0, GridBagConstraints.HORIZONTAL, true));
 
         //
         // Initialize System Message Panel
@@ -366,7 +368,7 @@ public class Game implements ActionListener {
         } else {
             systemMessage = new JLabel("Enter an amount and press \"Bet\" to begin.");
         }
-
+        systemMessage.setFont(new java.awt.Font("Arial", 1, 13));
         systemMessagePanel.add(systemMessage);
 
         boardPanel.add(systemMessagePanel, createConstraints(0, 0, 6, 1, 0, 0, GridBagConstraints.HORIZONTAL, false));
@@ -559,6 +561,7 @@ public class Game implements ActionListener {
         button.setActionCommand(actionCommand);
         button.setEnabled(false);
         button.addActionListener(this);
+        button.setFont(new java.awt.Font("Arial", 1, 12));
 
         return button;
     }

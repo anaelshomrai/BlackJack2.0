@@ -200,8 +200,9 @@ public class UserHome extends javax.swing.JFrame {
         mnuAccount.setBackground(new java.awt.Color(0, 0, 0));
         mnuAccount.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/account.png"))); // NOI18N
         mnuAccount.setText("My Account");
-        mnuAccount.setToolTipText("Account Details");
+        mnuAccount.setToolTipText("Click for account options");
         mnuAccount.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        mnuAccount.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
 
         mnuItmAbout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/about.png"))); // NOI18N
         mnuItmAbout.setText("Profile");

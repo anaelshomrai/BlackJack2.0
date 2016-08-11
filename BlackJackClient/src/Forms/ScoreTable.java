@@ -7,6 +7,7 @@ import Users.User;
 import DataUtil.Score;
 import blackjackclient.ConnectionUtil;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -108,6 +109,7 @@ public class ScoreTable extends javax.swing.JFrame {
             jScrollPane1.setOpaque(false);
             jScrollPane1.getViewport().setOpaque(false);
             scoreTable.setShowGrid(false);
+            scoreTable.getTableHeader().setFont(new Font("Ariel", Font.ITALIC, 12));
 
             dtm = new DefaultTableModel();
             Vector columnsName = new Vector();
@@ -220,6 +222,7 @@ public class ScoreTable extends javax.swing.JFrame {
         btnGroupSort.add(jrdbBalance);
         jrdbBalance.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jrdbBalance.setForeground(new java.awt.Color(255, 255, 255));
+        jrdbBalance.setSelected(true);
         jrdbBalance.setText("By Balance");
         jrdbBalance.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -291,8 +294,8 @@ public class ScoreTable extends javax.swing.JFrame {
         previous.setVisible(true);
     }//GEN-LAST:event_labBackMouseClicked
     /**
-     * if this radio button is selected we sort the table data according to
-     * the balance. the user who has the greater balance will be first.
+     * if this radio button is selected we sort the table data according to the
+     * balance. the user who has the greater balance will be first.
      */
     private void jrdbBalanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jrdbBalanceActionPerformed
         // Sorting list by balance
@@ -308,8 +311,8 @@ public class ScoreTable extends javax.swing.JFrame {
         scoreTable.setModel(dtm);
     }//GEN-LAST:event_jrdbBalanceActionPerformed
     /**
-     * if this radio button is selected we sort the table data according to
-     * the winnings. the user who has the most winnings will be first.
+     * if this radio button is selected we sort the table data according to the
+     * winnings. the user who has the most winnings will be first.
      */
     private void jrdbWinsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jrdbWinsActionPerformed
         clearTable();
