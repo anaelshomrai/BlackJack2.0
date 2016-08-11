@@ -9,5 +9,5 @@ if the database didn't create itself, create a database named BLACKJACK
 User Name: blackjack
 Password: blackjack
 
-Run the blackjack client application, login according to login_details..
+Run the blackjack client application, login according to Login_details..
 and Enjoy.
