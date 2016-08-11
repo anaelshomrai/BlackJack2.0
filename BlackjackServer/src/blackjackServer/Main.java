@@ -4,7 +4,7 @@ package blackjackServer;
  * This is the entry point for the server side application, here we initialize
  * a new server,
  * 
- * @author Anael
+ * @author ANI
  */
 public class Main {
     /** the port of the server */

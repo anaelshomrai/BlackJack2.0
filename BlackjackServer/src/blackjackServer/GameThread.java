@@ -1,4 +1,4 @@
-package DataUtil;
+package blackjackServer;
 
 import Users.User;
 import blackjackServer.ConnectionThread;
@@ -11,7 +11,7 @@ import java.util.Objects;
  * playing in this game/connected to server.
  *
  * @see blackjackServer.ConnectionThread
- * @author Anael
+ * @author ANI
  */
 public class GameThread {
 

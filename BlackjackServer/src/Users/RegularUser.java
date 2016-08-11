@@ -57,7 +57,7 @@ public class RegularUser extends User implements IUserAction {
     }
 
     /**
-     * This method create a new RegularUser object. I DONT THINK THIS METHOD IS NEEDED
+     * This method create a new RegularUser object.
      * 
      * @param firstName the first name of the RegularUser
      * @param lastName the last name of the RegularUser

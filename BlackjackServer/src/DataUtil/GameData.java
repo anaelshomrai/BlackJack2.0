@@ -13,7 +13,7 @@ import java.util.List;
  * write. the class contains information relevant only for the game itself. When
  * a game started this is the only object used.
  *
- * @author Anael
+ * @author ANI
  */
 public class GameData implements Serializable {
 

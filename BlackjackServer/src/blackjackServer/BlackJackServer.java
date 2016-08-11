@@ -3,7 +3,6 @@ package blackjackServer;
 import DataBase.DB;
 import DataUtil.CardsDealt;
 import DataUtil.GameData;
-import DataUtil.GameThread;
 import Users.User;
 import blackjack.Deck;
 import blackjack.Utils;
@@ -23,7 +22,7 @@ import java.util.logging.Logger;
  * pass them to a new thread. when a game is starting this class manages the
  * queue of the clients connected to a specific game and the game state.
  *
- * @author Anael
+ * @author ANI
  */
 public class BlackJackServer {
 
@@ -41,7 +40,8 @@ public class BlackJackServer {
     DB db = DB.getInstance();
 
     /**
-     * list of all the clients connected to this server
+     * list of all the clients connected to this server not include the queue
+     * for the game
      */
     protected Set<ConnectionThread> threads = new HashSet<>();
 
@@ -141,6 +141,31 @@ public class BlackJackServer {
             threads.remove(connection);
             System.out.println("queue size " + myQueue.size());
             System.out.println("threads size " + threads.size());
+        }
+    }
+
+    /**
+     * This method called when a player forced out of a game.
+     * it can be triggered if the player exit the game, or if the player forced
+     * out of the game because of a time-out read error (will occur if for 2
+     * minutes there's no player connected beside this player).
+     *
+     * @param user the user to remove from queue and thread;
+     */
+    public void removePlayer(User user) {
+        synchronized (this) {
+            GameThread toRemove = null;
+            for (GameThread connection : myQueue) {
+                if (user.getId() == connection.getUser().getId()) {
+                    toRemove = new GameThread(connection.getConnectionThread(), user);
+                }
+            }
+            if (toRemove != null) {
+                myQueue.remove(toRemove);
+                threads.remove(toRemove.getConnectionThread());
+                System.out.println("queue size " + myQueue.size());
+                System.out.println("threads size " + threads.size());
+            }
         }
     }
 
@@ -245,9 +270,6 @@ public class BlackJackServer {
                 }
                 c.setBlackjack(false);
             }
-            for (GameThread remove : toRemove) {
-                queue.remove(remove);
-            }
 
             responseData = new GameData();
             boolean gameOf2 = false;
@@ -282,7 +304,10 @@ public class BlackJackServer {
             }
 
             if (gameOf2) {
-
+                for (GameThread remove : toRemove) {
+                    queue.remove(remove);
+                    threads.remove(remove.getConnectionThread());
+                }
                 HandleGameOf2 game = new HandleGameOf2();
                 game.continueToThisGame(queue);
                 game.startGame();
@@ -294,6 +319,11 @@ public class BlackJackServer {
                 queue.set(0, second);
                 queue.set(1, third);
                 queue.set(2, first);
+            } else {
+                for (GameThread remove : toRemove) {
+                    queue.remove(remove);
+                    threads.remove(remove.getConnectionThread());
+                }
             }
         }
 
@@ -477,6 +507,7 @@ public class BlackJackServer {
          */
         public void setPlayersMove() {
             List<CardsDealt> cardsToSend = new ArrayList<>();
+            boolean go = false;
             responseData = new GameData();
             CardsDealt cd = new CardsDealt();
             for (GameThread c : queue) {
@@ -497,7 +528,12 @@ public class BlackJackServer {
                     }
 
                     try {
-                        requestData = (GameData) c.getConnectionThread().getOis().readObject();
+                        Object obj = c.getConnectionThread().getOis().readObject();
+                        if (obj instanceof GameData) {
+                            requestData = (GameData) obj;
+                        } else {
+                            go = true;
+                        }
                     } catch (IOException ex) {
                         Logger.getLogger(BlackJackServer.class.getName()).log(Level.SEVERE, null, ex);
                         clientDisconnected(c);
@@ -508,7 +544,7 @@ public class BlackJackServer {
                     responseData = new GameData();
                     responseData.setPlayerNum(stillInGame);
                     responseData.setMyId(c.getConnectionThread().getId());
-                    if (requestData.isMoreCardsAdded()) {
+                    if (!go && requestData.isMoreCardsAdded()) {
 
                         cd.setId(c.getConnectionThread().getId());
                         cd.setDeck(requestData.getDeck());
@@ -644,7 +680,7 @@ public class BlackJackServer {
         /**
          * When we move from a 3 players game to a 2 players game, we receives
          * the queue.
-         * 
+         *
          * @param queue the queue of the previous game
          */
         public void continueToThisGame(List<GameThread> queue) {
@@ -741,6 +777,7 @@ public class BlackJackServer {
          * will start again. else, the game will end.
          */
         public void checkingPlayers2() {
+            lessPlayersAvaliable = false;
             int count = 2;
             List<GameThread> toRemove = new ArrayList<>();
             for (GameThread c : queue) {
@@ -751,9 +788,6 @@ public class BlackJackServer {
                     toRemove.add(c);
                 }
                 c.setBlackjack(false);
-            }
-            for (GameThread remove : toRemove) {
-                queue.remove(remove);
             }
 
             responseData = new GameData();
@@ -768,6 +802,7 @@ public class BlackJackServer {
                 responseData = new GameData();
                 responseData.setGameStart(false);
             }
+
             for (GameThread c : queue) {
                 if (!c.isDisconnected()) {
                     try {
@@ -781,11 +816,18 @@ public class BlackJackServer {
                     }
                 }
             }
-            GameThread first = queue.get(0);
-            GameThread second = queue.get(1);
+            if (gameOn) {
+                GameThread first = queue.get(0);
+                GameThread second = queue.get(1);
 
-            queue.set(0, second);
-            queue.set(1, first);
+                queue.set(0, second);
+                queue.set(1, first);
+            } else {
+                for (GameThread remove : toRemove) {
+                    queue.remove(remove);
+                    threads.remove(remove.getConnectionThread());
+                }
+            }
         }
 
         /**

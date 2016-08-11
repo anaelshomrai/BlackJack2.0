@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  * This class handle the client threads, when a client sends a request, this
  * class handle the request.
  *
- * @author Anael
+ * @author ANI
  */
 public class ConnectionThread extends Thread {
 
@@ -168,9 +169,9 @@ public class ConnectionThread extends Thread {
      * This method handle the client requests, there are two types of object the
      * client can send and receive, ConnectionData and GameData. When receiving
      * a ConnectionData, this method handle the request according to the
-     * RequestCode. When receiving a GameData , this method wait for a 3 players,
-     * but if a certain time has passed, checking if there is 2 players and
-     * activate a game of 2.
+     * RequestCode. When receiving a GameData , this method wait for a 3
+     * players, but if a certain time has passed, checking if there is 2 players
+     * and activate a game of 2.
      *
      * @see DataUtil.ConnectionData
      * @see DataUtil.GameData
@@ -265,18 +266,22 @@ public class ConnectionThread extends Thread {
                             break;
 
                         case ConnectionData.EXIT:
-//                            server.threads.remove(this);
-//                            ois.close();
-//                            input.close();
-//                            oos.close();
-//                            output.close();
+                            System.out.println("before remove " + server.threads.size());
+                            server.threads.remove(this);
+                            System.out.println("after remove " + server.threads.size());
+                            ois.close();
+                            input.close();
+                            oos.close();
+                            output.close();
                             break;
+
+                        case ConnectionData.EXIT_GAME:
+                            System.out.println("before remove " + server.threads.size());
+                            server.removePlayer(requestData.getUser());
+                            System.out.println("after remove " + server.threads.size());
+
                     }
                     if (requestData.getStatus() == 0) {
-//                        ois.close();
-//                        input.close();
-//                        oos.close();
-//                        output.close();
                         break;
                     }
 
@@ -324,10 +329,6 @@ public class ConnectionThread extends Thread {
                     }
 
                     if (requestData.getStatus() == 0) {
-//                        ois.close();
-//                        input.close();
-//                        oos.close();
-//                        output.close();
                         break;
                     }
                 }
@@ -336,7 +337,6 @@ public class ConnectionThread extends Thread {
             System.out.println("Error creating output and input streams");
             ex.getStackTrace();
             Logger.getLogger(ConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
-            //System.exit(1);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -344,9 +344,36 @@ public class ConnectionThread extends Thread {
     }
 
     /**
-     * This Class check every 1 minute if we have 2 players waiting for a game,
-     * if we found there is 2 players waiting for the game, and a third player
-     * hasn't join we start a game of 2 players.
+     * {@inheritDoc }
+     */
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + Objects.hashCode(this.socket);
+        return hash;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ConnectionThread) {
+            ConnectionThread connectionThread = (ConnectionThread) obj;
+            if (connectionThread.getId() == this.getId()) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * This Class check every 30000 milliseconds if we have 2 players waiting
+     * for a game, if we found there is 2 players waiting for the game, and a
+     * third player hasn't join we start a game of 2 players.
      */
     public class checkPlayersSize implements Runnable {
 
@@ -357,12 +384,12 @@ public class ConnectionThread extends Thread {
         public void run() {
             while (!gameOn) {
                 try {
-                    Thread.sleep(60000);
+                    Thread.sleep(30000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(ConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 int size = server.getPlayesrsSize();
-                if (size < 3 && size == 2) {
+                if (size == 2) {
                     gameOn = true;
                     server.new HandleGameOf2().startGame();
                 }
