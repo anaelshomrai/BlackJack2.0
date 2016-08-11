@@ -71,9 +71,6 @@ public class BlackJackServer extends javax.swing.JFrame implements Runnable {
      * Creates new form Server
      */
     public BlackJackServer() {
-        String file = "./src/icon.png";
-        ImageIcon img = new ImageIcon(file);
-        this.setIconImage(img.getImage());
         initComponents();
     }
 

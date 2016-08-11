@@ -384,7 +384,7 @@ public class ConnectionThread extends Thread {
         public void run() {
             while (!gameOn) {
                 try {
-                    Thread.sleep(30000);
+                    Thread.sleep(60000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(ConnectionThread.class.getName()).log(Level.SEVERE, null, ex);
                 }
