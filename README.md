@@ -12,4 +12,4 @@ Password: blackjack
 Run the blackjack client application, login according to Login_details..
 and Enjoy.
 
-https://s9.postimg.org/xsslsaly7/blackjack.png
+<img class="img-responsive" src="https://s9.postimg.org/xsslsaly7/blackjack.png" alt="">
