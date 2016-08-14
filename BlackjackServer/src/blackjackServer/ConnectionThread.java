@@ -371,7 +371,7 @@ public class ConnectionThread extends Thread {
     }
 
     /**
-     * This Class check every 30000 milliseconds if we have 2 players waiting
+     * This Class check every 60000 milliseconds if we have 2 players waiting
      * for a game, if we found there is 2 players waiting for the game, and a
      * third player hasn't join we start a game of 2 players.
      */
