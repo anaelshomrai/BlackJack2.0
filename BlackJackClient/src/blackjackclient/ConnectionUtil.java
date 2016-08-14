@@ -500,6 +500,7 @@ public class ConnectionUtil {
      */
     public void setCardsNDeck(List<Card> cards, Deck deck, Hand dealerHand) {
         try {
+            this.clientSocket.setSoTimeout(0);
             gameData = new GameData();
             gameData.setCards(cards);
             gameData.setDeck(deck);

@@ -20,7 +20,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -1607,6 +1606,7 @@ public class GameOnline extends JFrame implements ActionListener, Serializable {
                         timeLabel.setText(" Time Left : " + 0);
                     }
                     timer.stop();
+                    nextTurn();
                 } else {
                     time--;
                     if (this.language.equals("iw")) {
