@@ -459,7 +459,7 @@ public class ConnectionUtil {
      */
     public void waitingForPlayers(User user) {
         try {
-            this.clientSocket.setSoTimeout(120000);
+            this.clientSocket.setSoTimeout(300000);
             gameData = new GameData();
             gameData.setUser(user);
             gameData.setRequestCode(GameData.WAITING_FOR_PLAYERS);
