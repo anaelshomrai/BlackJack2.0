@@ -1,5 +1,5 @@
 # BlackJack2.0
-A Blackjack game with a server/client application
+A Blackjack game with a server/client application in JAVA
 
 This program is a blackjack with client and server application, using sockets.
 First, you need to start the derby dataBase service, start the server and This program
